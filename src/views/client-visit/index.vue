@@ -1,6 +1,5 @@
 <template>
-  <div id="app">
-    <Header />
+  <div>
     <keep-alive>
       <router-view v-if="$route.meta.keepAlive"></router-view>
     </keep-alive>
@@ -9,18 +8,13 @@
 </template>
 
 <script>
-import Header from '@/components/Header'
 export default {
+  name: 'ClientVisitIndex',
   components: {
-    Header
-  },
-  computed: {},
-  mounted () {
-
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style scoped>
 
 </style>

@@ -1,0 +1,91 @@
+
+/**
+ * 背景颜色
+ */
+@pageBgColor:     #f5f5f5;        // 页面背景色
+@cardBg:          #ffffff;        // 卡片背景色
+@headerBg:        #199ed8;        // header背景色
+@labelBgColor:    #fdedd8;        // label标签背景色
+
+
+/**
+ * 文字颜色
+ */
+@titleColor:      #1a1a1a;        // 主文字颜色
+@textColor:       #aaaaaa;        // 副文本颜色
+@linkColor:       #02A7F0;        // 链接颜色
+@whiteColor:      #ffffff;        // 白色文字
+@labelColor:      #FFA847;        // label标签文字颜色
+@yellowColor:     #F59A23;        // 黄色文字
+@regColor:        #ee0a24;        // 警告文字
+
+/**
+ * 投影颜色
+ */
+@card-shadow: 0 0 .1rem #e5e5e5;  // 卡片投影颜色
+
+
+// lable样式
+.labelStyle(
+  @backgroundColor: @labelBgColor,
+  @color: @labelColor
+) {
+  background: @backgroundColor;
+  font-size: .12rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: .03rem .06rem;
+  color: @color;
+  border-radius: .06rem;
+  box-sizing: border-box;
+}
+
+.errorLabelStyle {
+  background: rgba(234, 128, 141, .34);
+  color: @regColor;
+}
+
+.btnStyle {
+  width: .84rem;
+  height: .32rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: .32rem;
+}
+
+/* 单行超出隐藏 */
+.single-row-overstep {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 2行超出隐藏 */
+.two-row-overstep {
+  .multi-row-overstep(2)
+}
+
+/* 3行超出隐藏 */
+.three-row-overstep {
+  .multi-row-overstep(3)
+}
+
+.multi-row-overstep(@multiAmount: 2) {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: @multiAmount;
+  -webkit-box-orient: vertical;
+}
+
+// 圆角卡片
+.cardRadios(@radius: .06rem) {
+  overflow: hidden;
+  border-radius: @radius;
+}
+
+// 投影
+.boxShadow() {
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .05);
+}
