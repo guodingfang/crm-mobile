@@ -8,8 +8,8 @@
       <div v-if="info" class="item" @click="onSkipDetails">
         <div class="info">
           <div class="username">{{ info.customerName }}</div>
-          <div class="label">{{ info.character }}</div>
-          <div class="status" :class="{'error-status': info.status === 2}">{{ status }}</div>
+          <div class="status" :class="'status' + info.status">{{ status }}</div>
+          <div class="label" :class="info.characterCode">{{ info.character }}</div>
         </div>
         <div class="contacts">
           <span class="contacts-name">{{ contacts.name || '暂无' }}</span>
@@ -92,21 +92,21 @@ export default {
       .single-row-overstep()
     }
     .label {
-      color: #81D3F8;
-      border: 1px solid #81D3F8;
-      font-size: .12rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: .06rem;
-      padding: 0 .06rem;
-      margin-right: auto;
+      margin-left: .12rem;
+      width: .38rem;
+      .characterLabel()
     }
     .status {
       margin-left: .12rem;
-      .labelStyle();
-      &.error-status {
-        .errorLabelStyle()
+      .labelStyle(transparent, @labelColor);
+      border: 1px solid @yellowColor;
+      &.status2 {
+        color: @regColor;
+        border-color: @regColor;
+      }
+      &.status3 {
+        color: @greenColor;
+        border-color: @greenColor;
       }
     }
   }

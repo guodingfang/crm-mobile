@@ -79,10 +79,13 @@ export default {
     ...mapActions('customer', ['setCurrentCustomer', 'setContactsInfo']),
 
     async getCustomerInfo () {
-      const { code = -1, data = [] } = await getCustomerList({
+      const { code = -1, data = [], msg = '' } = await getCustomerList({
         id: this.customerId
       })
-      if (code !== 0) return
+      if (code !== 0) {
+        Toast(msg)
+        return
+      }
       this.info = data.length ? data[0] : {}
       this.contactsList = this.info.liaisonList.map(item => ({ ...item, tag: Math.random() })) || []
       await this.getFormInfo(this.info)
@@ -124,11 +127,11 @@ export default {
     },
     onEditContacts (info) {
       this.setContactsInfo(info)
-      this.$router.push({ path: '/addContacts', query: { type: 'edit' } })
+      this.$router.push({ name: 'addContacts', query: { type: 'edit' } })
     },
     addContacts () {
       this.setContactsInfo({ customerId: this.info.id })
-      this.$router.push({ path: '/addContacts', query: { type: 'add' } })
+      this.$router.push({ name: 'addContacts', query: { type: 'add' } })
     },
     async onConfirm () {
       this.$refs.baseForm.$refs.useForm.validate().then(async () => {
@@ -150,7 +153,7 @@ export default {
       this.setCurrentCustomer({
         ...this.getParams()
       })
-      this.$router.push({ path: '/myClient/visitRecord' })
+      this.$router.push({ name: 'myClientVisitRecord' })
     },
     onBack () {
       this.$router.go(-1)
@@ -180,6 +183,7 @@ export default {
     margin-left: auto;
     color: @whiteColor;
     font-size: .12rem;
+    border-radius: .06rem;
     padding: .03rem .06rem;
     background-color: rgb(25, 158, 216);
   }

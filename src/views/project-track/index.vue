@@ -63,7 +63,7 @@ export default {
       console.log('e', e)
     },
     onSkipProject (e) {
-      this.$router.push({ path: '/projectTrack/list' })
+      this.$router.push({ name: 'projectTrackList' })
     }
   }
 }

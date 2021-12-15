@@ -140,7 +140,7 @@ export default {
       console.log('@')
     },
     onAdd () {
-      this.$router.push('/clientVisit')
+      this.$router.push({ name: 'clientVisit' })
     },
     onBack () {
       this.$router.go(-1)

@@ -17,10 +17,10 @@ export default {
     }
   },
   methods: {
-    selectTab (path) {
+    selectTab (name) {
       if (!this.currentTab) return
-      if (path === this.currentTab) return
-      this.$router.replace({ path: `/clientVisit/${path}` })
+      if (name === this.currentTab) return
+      this.$router.replace({ name })
     }
   }
 }

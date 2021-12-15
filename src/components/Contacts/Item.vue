@@ -83,7 +83,7 @@ export default {
 
 <style scoped lang="less">
 .item {
-  margin-bottom: .12rem;
-  .cardRadios()
+  //margin-bottom: .12rem;
+  //.cardRadios()
 }
 </style>

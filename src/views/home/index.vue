@@ -17,11 +17,13 @@
     <div class="model">
       <div class="model-header">
         <h3 class="model-title">行动简报</h3>
-        <Filtrate />
+<!--        <Filtrate />-->
       </div>
 
       <BriefReport />
     </div>
+
+    <DemoModel v-if="false"/>
   </div>
 </template>
 
@@ -30,6 +32,7 @@ import UserCard from '@/views/home/components/UserCard'
 import ModelItem from '@/views/home/components/ModelItem'
 import Filtrate from '@/views/home/components/Filtrate'
 import BriefReport from '@/views/home/components/BriefReport'
+import DemoModel from '@/views/home/components/DemoModel'
 import { getUserBaseInfo, getUserInfo } from '@/api/user'
 import { mapActions } from 'vuex'
 export default {
@@ -38,7 +41,9 @@ export default {
     UserCard,
     ModelItem,
     BriefReport,
-    Filtrate
+    // eslint-disable-next-line vue/no-unused-components
+    Filtrate,
+    DemoModel
   },
   data () {
     return {
@@ -47,7 +52,7 @@ export default {
         { name: '客户信息', model: 'myClient', backgroundColor: '#ffca78' },
         { name: '客户报备', model: 'clientReport', backgroundColor: '#39aff9' },
         { name: '客户拜访', model: 'clientVisit', backgroundColor: '#7d72f9' },
-        { name: '立项跟踪', model: 'projectTrack', backgroundColor: '#ff7173' }
+        { name: '潜在订单', model: 'projectTrack', backgroundColor: '#ff7173' }
         // { name: '敬请期待', model: 'expect' }
       ]
     }
@@ -74,12 +79,13 @@ export default {
         code: userCode || '34548'
       })
       if (code !== 0) return
+      console.log('data', data)
       this.userInfo = data
       this.setUserInfo(this.userInfo)
     },
     onSkipModel (model) {
       if (model !== 'expect') {
-        this.$router.push({ path: model })
+        this.$router.push({ name: model })
       }
     }
   }

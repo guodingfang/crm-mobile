@@ -10,6 +10,7 @@ const state = getDefaultState()
 
 const mutations = {
   SET_CURRENT_CUSTOMER: (state, info) => {
+    console.log('info', info)
     state.currentCustomer = info
   },
   SET_REST_CUSTOMER_LIST: (state, rest) => {

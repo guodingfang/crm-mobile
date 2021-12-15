@@ -1,4 +1,5 @@
 const getters = {
+  headerHeight: state => state.util.headerHeight,
   pageLoading: state => state.util.pageLoading,
   userInfo: state => state.user.userInfo,
   currentCustomer: state => state.customer.currentCustomer,

@@ -1,7 +1,9 @@
 export const CustomerStatus = {
   0: '报备中',
   1: '已生效',
-  2: '被驳回'
+  2: '被驳回',
+  3: '未提交',
+  4: '已作废'
 }
 
 export const CustomerCharacter = {

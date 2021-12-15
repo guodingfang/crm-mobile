@@ -1,15 +1,23 @@
 <template>
-  <div @click="onClock" @touchstart="onTouchstart" @touchend="onTouchend">
-    <div class="date-model" :class="{'not-date-model': !this.allowClick}">
-      <span class="date-val">{{ date }}</span>
-      <span class="date-explain">第{{ clockAmount }}次打卡</span>
-    </div>
+  <div class="date-container">
+    <vue-ellipse-progress
+      :progress="progress"
+      :no-data="noData"
+      :empty-color="emptyColor"
+      v-bind = "option"
+    >
+      <div @touchstart="onTouchstart" @touchend="onTouchend">
+        <div class="date-model" :class="{'not-date-model': !this.allowClick}">
+          <span class="date-val">{{ date }}</span>
+          <span class="date-explain">第{{ clockAmount }}次打卡</span>
+        </div>
+      </div>
+    </vue-ellipse-progress>
   </div>
 </template>
 
 <script>
-import moment from 'moment'
-// eslint-disable-next-line no-unused-vars
+import dayjs from 'dayjs'
 import { Toast } from 'vant'
 export default {
   name: 'Date',
@@ -24,7 +32,16 @@ export default {
       date: '',
       timer: null,
       timerClick: null,
-      allowClick: true
+      allowClick: true,
+      progress: 0,
+      noData: true,
+      emptyColor: '#d9a56d',
+      option: {
+        mode: 'normal',
+        size: 120,
+        color: '#FFA847',
+        animation: 'default 2500 0'
+      }
     }
   },
   mounted () {
@@ -42,52 +59,55 @@ export default {
   },
   methods: {
     changeDate () {
-      this.date = moment().format('HH:mm:ss')
+      this.date = dayjs().format('HH:mm:ss')
       this.timer = setInterval(() => {
-        this.date = moment().format('HH:mm:ss')
+        this.date = dayjs().format('HH:mm:ss')
       }, 1000)
     },
     onTouchstart () {
-      // this.timerClick = setTimeout(() => {
-      //   setTimeout(() => {
-      //     this.allowClick = true
-      //   }, 15000)
-      //   this.$emit('clock')
-      // }, 2500)
-    },
-    onTouchend () {
-      // clearInterval(this.timerClick)
-      // this.timerClick = null
-    },
-    onClock () {
-      if (this.allowClick) {
-        this.allowClick = false
+      if (!this.allowClick) {
+        Toast('15s内不可重复打卡')
+        return
+      }
+      this.noData = false
+      this.progress = 100
+      this.timerClick = setTimeout(() => {
         setTimeout(() => {
           this.allowClick = true
+          this.emptyColor = '#d9a56d'
         }, 15000)
+        this.emptyColor = '#999999'
+        this.allowClick = false
         this.$emit('clock')
-      } else {
-        Toast('15s内不可重复打卡')
-      }
+      }, 2500)
+    },
+    onTouchend () {
+      clearInterval(this.timerClick)
+      this.timerClick = null
+      this.noData = true
+      this.progress = 0
     }
   }
 }
 </script>
 
 <style scoped lang="less">
+.date-container {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /deep/ .ep-hidden {
+    opacity: 1;
+  }
   .date-model {
     margin: auto;
-    background-color: @whiteColor;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 1.2rem;
-    height: 1.2rem;
     border-radius: 50%;
-    box-shadow:  -10px 10px 20px rgba(0, 0, 0, .25),
-      10px -10px 20px #ffffff;
-    border: .05rem solid @yellowColor;
     &.not-date-model {
       border-color: @textColor;
     }
@@ -102,4 +122,5 @@ export default {
       color: @textColor;
     }
   }
+}
 </style>

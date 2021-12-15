@@ -11,6 +11,7 @@ export default {
           flex: 'column',
           label: '客户名称',
           value: '',
+          placeholder: '请输入客户名称',
           required: true
         },
         {

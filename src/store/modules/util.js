@@ -2,6 +2,7 @@ import { getRegionInfo, getCustomerCharacter, getCustomerType } from '@/api/util
 
 const getDefaultState = () => {
   return {
+    headerHeight: 0,
     pageLoading: false,
     provinceList: null,
     customerCharacter: null,
@@ -12,6 +13,9 @@ const getDefaultState = () => {
 const state = getDefaultState()
 
 const mutations = {
+  SET_HEADER_HEIGHT: (state, height) => {
+    state.headerHeight = height
+  },
   SET_PAGE_LOADING: (state, loading) => {
     state.pageLoading = loading
   },
@@ -27,6 +31,9 @@ const mutations = {
 }
 
 const actions = {
+  setHeaderHeight ({ commit }, height) {
+    commit('SET_HEADER_HEIGHT', height)
+  },
   setPageLoading ({ commit }, loading) {
     commit('SET_PAGE_LOADING', loading)
   },

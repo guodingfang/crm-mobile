@@ -46,7 +46,6 @@ export default {
         key: 'cd15b18eda3478b6b67a985b24589d09',
         location: `${lng},${lat}`
       })
-      console.log('data', data)
       const {
         regeocode: {
           formatted_address: address

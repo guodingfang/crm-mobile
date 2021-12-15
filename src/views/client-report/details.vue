@@ -11,12 +11,14 @@
 
       <Title class="title" title="联系人信息" />
       <div class="contacts-info">
-        <ContactsItem
-          v-for="item in contactsList"
-          :info="item"
-          :key="item.tag"
-          @change="onChangeContacts"
-        />
+        <SwipeCell class="contacts-item" v-for="item in contactsList" :key="item.tag">
+          <ContactsItem :info="item" @change="onChangeContacts" />
+          <template #right>
+            <div class="del-contacts" @click.stop="onDelContacts(item)">
+              删除
+            </div>
+          </template>
+        </SwipeCell>
       </div>
 
       <AddUserBtn v-if="!readOnly" @btn="addContacts" />
@@ -39,10 +41,10 @@ import { AddUserBtn } from '@/components/Button'
 import { ContactsItem } from '@/components/Contacts'
 import Title from '@/components/Title'
 import form from './mixins/form'
-import { getCustomerList, createCustomer, resetCustomer, deleteCustomer } from '@/api/customer'
+import { getCustomerList, createCustomer, saveCustomer, resetCustomer, deleteCustomer } from '@/api/customer'
 import { mapGetters, mapActions } from 'vuex'
-import moment from 'moment'
-import { Toast, Dialog } from 'vant'
+import dayjs from 'dayjs'
+import { SwipeCell, Toast, Dialog } from 'vant'
 
 export default {
   name: 'ClientDetails',
@@ -54,7 +56,8 @@ export default {
     Item,
     Title,
     ContactsItem,
-    AddUserBtn
+    AddUserBtn,
+    SwipeCell
   },
   data () {
     return {
@@ -84,7 +87,12 @@ export default {
         if (this.info.status === 2) {
           this.btnList = [
             { status: 'btn1', name: '提交', type: 'submit' },
-            { status: 'btn3', name: '删除', type: 'del' }
+            { status: 'btn3', name: '作废', type: 'del' }
+          ]
+        } else if (this.info.status === 3) {
+          this.btnList = [
+            { status: 'btn1', name: '提交', type: 'submit' },
+            { status: 'btn2', name: '保存', type: 'save' }
           ]
         }
 
@@ -103,14 +111,22 @@ export default {
           notes: '',
           orgName: '',
           phoneNum: '',
-          createDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+          createDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           creater: this.userInfo.name,
-          uploadDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+          uploadDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           tag: Math.random()
         }]
       }
       await this.getFormInfo(this.info)
       this.pageLoading = false
+    },
+
+    onDelContacts (contacts) {
+      if (this.contactsList.length === 1) {
+        Toast('最少保留一个联系人')
+        return
+      }
+      this.contactsList = this.contactsList.filter(item => item.tag !== contacts.tag)
     },
 
     onChangeInput ({ type, id, configs, value }) {
@@ -151,10 +167,9 @@ export default {
         notes: '',
         orgName: '',
         phoneNum: '',
-        mainContact: this.contactsList.length ? 1 : 0,
-        createDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+        createDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         creater: this.userInfo.name,
-        uploadDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+        uploadDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         tag: Math.random()
       }]
     },
@@ -162,32 +177,60 @@ export default {
       this.contactsList = this.contactsList.map(item => item.tag === contacts.tag ? { ...contacts } : item)
     },
     onSave () {
-      console.log('save')
+      this.$refs.baseForm.$refs.useForm.validate().then(async () => {
+        const params = {
+          ...this.info,
+          creater: this.userInfo.name,
+          liaisonList: this.contactsList.map((item, index) => {
+            const { tag, ...args } = item
+            return { ...args, mainContact: index === 0 ? 0 : 1 }
+          })
+        }
+        const { code, msg } = await saveCustomer({
+          ...params
+        })
+        if (code === 0) {
+          Toast('保存成功')
+          this.setRestCustomerList(true)
+          this.onBack()
+        } else {
+          Toast(msg)
+        }
+      }).catch(() => {
+        Toast('请填写完整')
+      })
     },
     async onSubmit () {
       this.$refs.baseForm.$refs.useForm.validate().then(async () => {
         const params = {
           ...this.info,
+          creater: this.userInfo.name,
           liaisonList: this.contactsList.map(item => {
             const { tag, ...args } = item
             return { ...args }
           })
         }
         if (this.info.status === 2) {
-          const { code } = await resetCustomer({
+          const { code, msg = '' } = await resetCustomer({
             ...params
           })
           if (code === 0) {
+            Toast('提交成功')
             this.setRestCustomerList(true)
             this.onBack()
+          } else {
+            Toast(msg)
           }
         } else {
-          const { code } = await createCustomer({
+          const { code, msg } = await createCustomer({
             ...params
           })
           if (code === 0) {
+            Toast('提交成功')
             this.setRestCustomerList(true)
             this.onBack()
+          } else {
+            Toast(msg)
           }
         }
       }).catch(() => {
@@ -221,7 +264,26 @@ export default {
 .content-info,
 .contacts-info {
   margin: 0 .12rem;
+  .contacts-item {
+    margin-bottom: .12rem;
+    .cardRadios();
+    .del-contacts {
+      min-width: 100%;
+      width: .6rem;
+      height: 100%;
+      background-color: rgb(238, 10, 36);
+      color: @whiteColor;
+      font-size: .12rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /deep/ .van-button {
+        height: 100%;
+      }
+    }
+  }
 }
+
 .content-info {
   .cardRadios()
 }

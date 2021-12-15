@@ -1,10 +1,13 @@
 <template>
-  <div class="container">
+  <div class="container" :style="{ '--topHeader--': headerHeight }">
     <Tab currentTab="outClock"/>
     <div class="bg">
       <div class="header">
-        <div class="user">你好，{{ userInfo.name }}</div>
-        <div class="time">{{ time }}</div>
+        <div class="top">
+          <div class="user">你好，{{ userInfo.name }}</div>
+          <div class="time">{{ time }}</div>
+        </div>
+        <div class="warning">{{ warning }}</div>
       </div>
       <div class="bg-mask"></div>
       <img class="bg-img" src="@/assets/location-bg.png" alt="">
@@ -24,7 +27,7 @@
           show-word-limit
         />
       </div>
-      <p class="explain">说明：打卡前请先点击定位，确认位置无误后点击下方的打卡按钮</p>
+      <p class="explain">说明：打卡前请先确定位置是否准确，位置无误后长按下方的打卡按钮</p>
     </div>
     <div class="address-model">
       <Date :clock-amount="clockAmount" @clock="onClock" />
@@ -34,14 +37,16 @@
 </template>
 
 <script>
-import { Field } from 'vant'
+import { Field, Toast } from 'vant'
 import Tab from '@/views/client-visit/components/Tab'
 import Date from './components/Date'
 import Address from '@/views/client-visit/components/Address'
 import { addClockRecord, getCurrentClockAmount } from '@/api/user'
-import moment from 'moment'
-import { mapGetters, mapActions } from 'vuex'
+import dayjs from 'dayjs'
+import { mapActions, mapGetters } from 'vuex'
 import location from './mixins/location'
+import { warningList } from './configs'
+
 export default {
   name: 'OutClock',
   mixins: [location],
@@ -53,29 +58,33 @@ export default {
   },
   data () {
     return {
+      warning: '',
       time: '',
-      clockAmount: 0,
+      clockAmount: 1,
       notes: '',
       address: '定位中...',
       location: '',
-      weeks: ['一', '二', '三', '四', '五', '六', '日']
+      weeks: ['日', '一', '二', '三', '四', '五', '六']
     }
   },
   computed: {
-    ...mapGetters(['userInfo'])
+    ...mapGetters(['userInfo', 'headerHeight'])
   },
   mounted () {
-    const time = `${moment().format('YYYY-MM-DD')}  (周${this.weeks[moment().isoWeekday() - 1]})`
-    this.time = time
+    this.time = `${dayjs().format('YYYY-MM-DD')}  (周${this.weeks[dayjs().day()]})`
     this.getLocation()
     this.getCurrentClockAmount()
+  },
+  activated () {
+    const random = Math.floor(Math.random() * (warningList.length || 10))
+    this.warning = warningList[random]
   },
   methods: {
     ...mapActions('visit', ['setUpdateRecord']),
     async getCurrentClockAmount () {
       const { code, data } = await getCurrentClockAmount()
       if (code !== 0) return
-      this.clockAmount = data
+      this.clockAmount = (data || 0) + 1
     },
     onAgainLocation () {
       this.address = '定位中...'
@@ -83,15 +92,15 @@ export default {
     },
     async onClock () {
       const { code } = await addClockRecord({
-        createDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+        createDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         creater: this.userInfo.name,
         managerCode: this.userInfo.code,
         managerName: this.userInfo.name,
         location: this.address,
         latitude: this.latitude,
         longitude: this.longitude,
-        positionDate: moment().format('YYYY-MM-DD'),
-        positionTime: moment().format('YYYY-MM-DD HH:mm:ss'),
+        positionDate: dayjs().format('YYYY-MM-DD'),
+        positionTime: dayjs().format('YYYY-MM-DD HH:mm:ss'),
         status: 0,
         notes: this.notes
       })
@@ -99,6 +108,7 @@ export default {
       this.notes = ''
       this.clockAmount = this.clockAmount + 1
       this.setUpdateRecord(true)
+      Toast('打卡成功')
     }
   }
 }
@@ -107,7 +117,8 @@ export default {
 <style scoped lang="less">
 .container {
   background: @whiteColor;
-  min-height: calc(100vh - .46rem);
+  min-height: calc(100vh - var(--topHeader--));
+  box-sizing: border-box;
 }
 .bg {
   position: relative;
@@ -120,7 +131,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: linear-gradient(180deg, #ffffff, transparent, 100%, transparent);
+    background-image: linear-gradient(180deg, #ffffff, transparent);
   }
   .bg-img {
     height: 2.2rem;
@@ -132,19 +143,27 @@ export default {
     width: 100%;
     position: absolute;
     z-index: 99;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     padding: .12rem;
     box-sizing: border-box;
-    .user {
-      font-size: .14rem;
-      color: @titleColor;
-      font-weight: bold;
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      .user {
+        font-size: .14rem;
+        color: #999;
+        //font-weight: bold;
+      }
+      .time {
+        font-size: .14rem;
+        color: @tipsColor;
+      }
     }
-    .time {
-      font-size: .12rem;
-      color: @titleColor;
+    .warning {
+      color: @tipsColor;
+      margin-top: .06rem;
+      font-size: .14rem;
+      font-weight: 500;
     }
   }
 }
@@ -161,12 +180,14 @@ export default {
         border: 1px solid #e5e5e5;
         border-radius: .06rem;
       }
+      .van-field__word-limit {
+        color: @tipsColor;
+      }
     }
   }
   .explain {
     font-size: .12rem;
     color: @textColor;
-    margin: .12rem;
   }
 
   &.address-model {

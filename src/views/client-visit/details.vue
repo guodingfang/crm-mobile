@@ -29,7 +29,7 @@ import { addVisitRecord, queryCustomerVisitDetails } from '@/api/visit'
 import { mapGetters, mapActions } from 'vuex'
 import form from './mixins/form'
 import { Toast } from 'vant'
-import moment from 'moment'
+import dayjs from 'dayjs'
 
 export default {
   name: 'ClientVisit',
@@ -113,24 +113,26 @@ export default {
       if (this.status === '0') {
         params = {
           ...params,
-          createDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+          createDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
           creater: this.userInfo.name
         }
       }
       if (this.status === '1') {
         params = {
           ...params,
-          updateDate: moment().format('YYYY-MM-DD HH:mm:ss')
+          updateDate: dayjs().format('YYYY-MM-DD HH:mm:ss')
         }
       }
       this.$refs.formBase.$refs.useForm.validate().then(async () => {
-        const { code } = await addVisitRecord({
+        const { code, msg = '' } = await addVisitRecord({
           ...params
         })
         if (code === 0) {
           Toast('保存完成')
           this.setClockRecordId(this.currentVisit.id)
           this.onBack()
+        } else {
+          Toast(msg)
         }
       }).catch(() => {
         Toast('请填写完整')

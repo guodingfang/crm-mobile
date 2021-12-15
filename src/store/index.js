@@ -8,7 +8,8 @@ import util from './modules/util'
 import visit from './modules/visit'
 
 const vuexLocal = new VuexPersistence({
-  storage: window.localStorage
+  storage: window.localStorage,
+  modules: ['user', 'customer', 'visit']
 })
 
 Vue.use(Vuex)

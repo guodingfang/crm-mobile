@@ -14,7 +14,7 @@
       v-model="reloadLoading"
       @refresh="onReload"
     >
-      <Title class="title" :title="`当前共有负责${customerTotal}个客户`" :is-prefix="false"/>
+      <Title class="title" :title="`当前有负责${customerTotal || 0}个客户`" :is-prefix="false"/>
       <List
         class="list"
         v-model="loading"
@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { Search, List, PullRefresh, Empty } from 'vant'
+import { Search, List, PullRefresh, Empty, Toast } from 'vant'
 import Title from '@/components/Title'
 import Item from './components/Item'
 import { getCustomerList } from '@/api/customer'
@@ -73,8 +73,8 @@ export default {
     this.getCustomerList({ reset: true })
   },
   activated () {
-    if (this.customerList.length && this.currentCustomer) {
-      this.customerList = this.customerList.map(item => item.id === this.currentCustomer.id
+    if (this.currentCustomer && this.customerList.length) {
+      this.customerList = this.customerList.map(item => item && item.id === this.currentCustomer.id
         ? { ...this.currentCustomer } : item)
     }
     this.setCurrentCustomer(null)
@@ -85,7 +85,7 @@ export default {
     // 获取客户列表
     async getCustomerList (option = {}) {
       const { reset = false, ...args } = option
-      const { code = -1, data = [], total } = await getCustomerList({
+      const { code = -1, data = [], total, msg = '' } = await getCustomerList({
         page: this.page,
         limit: this.limit,
         status: '1',
@@ -96,6 +96,8 @@ export default {
       this.page = this.page + 1
       if (code === 0) {
         this.customerList = reset ? data : [...this.customerList, ...data]
+      } else {
+        Toast(msg)
       }
       this.loading = false
     },
@@ -120,7 +122,7 @@ export default {
       }, 1000)
     },
     onSkipDetails ({ customerId }) {
-      this.$router.push({ path: '/myClient/details', query: { customerId } })
+      this.$router.push({ name: 'myClientDetails', query: { customerId } })
     }
   }
 }

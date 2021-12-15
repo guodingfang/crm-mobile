@@ -31,7 +31,7 @@ export default {
   },
   methods: {
     onConfirm () {
-      this.$router.push({ path: '/projectTrack/details' })
+      this.$router.push({ name: 'projectTrackDetails' })
     }
   }
 }

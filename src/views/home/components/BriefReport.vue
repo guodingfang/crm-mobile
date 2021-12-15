@@ -2,15 +2,11 @@
   <div class="list">
     <div class="item">
       <div class="val">10</div>
-      <div class="label">应行动次数</div>
+      <div class="label">本周行动次数</div>
     </div>
     <div class="item">
       <div class="val">12</div>
-      <div class="label">实际行动次数</div>
-    </div>
-    <div class="item">
-      <div class="val">80%</div>
-      <div class="label">完成率</div>
+      <div class="label">本月行动次数</div>
     </div>
   </div>
 </template>
@@ -39,7 +35,7 @@ export default {
     }
     .label {
       margin-top: .06rem;
-      color: @textColor;
+      color: @linkColor;
       font-size: .12rem;
     }
   }

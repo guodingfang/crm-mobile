@@ -111,25 +111,7 @@ export default {
     .label {
       margin-left: .12rem;
       width: .38rem;
-      //height: .38rem;
-      &.KHXZ01 {
-        .labelStyle(#ffcd96, #fc9c3e)
-      }
-      &.KHXZ02 {
-        .labelStyle(#b3e3a7, #69b528)
-      }
-      &.KHXZ03 {
-        .labelStyle(#d2f0fc, #34c5f4)
-      }
-      &.KHXZ04 {
-        .labelStyle(#d3aafa, #a345f9)
-      }
-      &.KHXZ05 {
-        .labelStyle(#f2abb4, #ec6c7f)
-      }
-      &.KHXZ06 {
-        .labelStyle(#e5eaeb, #828282)
-      }
+      .characterLabel()
     }
   }
   .footer {

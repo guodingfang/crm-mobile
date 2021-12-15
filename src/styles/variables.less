@@ -13,11 +13,13 @@
  */
 @titleColor:      #1a1a1a;        // 主文字颜色
 @textColor:       #aaaaaa;        // 副文本颜色
+@tipsColor:       #999999;        // 提示文字
 @linkColor:       #02A7F0;        // 链接颜色
 @whiteColor:      #ffffff;        // 白色文字
 @labelColor:      #FFA847;        // label标签文字颜色
 @yellowColor:     #F59A23;        // 黄色文字
 @regColor:        #ee0a24;        // 警告文字
+@greenColor:      #1ABC9C;        // 绿色文字
 
 /**
  * 投影颜色
@@ -88,4 +90,25 @@
 // 投影
 .boxShadow() {
   box-shadow: 0 1px 5px rgba(0, 0, 0, .05);
+}
+
+.characterLabel() {
+  &.KHXZ01 {
+    .labelStyle(#ffcd96, #fc9c3e)
+  }
+  &.KHXZ02 {
+    .labelStyle(#b3e3a7, #69b528)
+  }
+  &.KHXZ03 {
+    .labelStyle(#d3aafa, #a345f9)
+  }
+  &.KHXZ04 {
+    .labelStyle(#d2f0fc, #34c5f4)
+  }
+  &.KHXZ05 {
+    .labelStyle(#f2abb4, #ec6c7f)
+  }
+  &.KHXZ06 {
+    .labelStyle(#e5eaeb, #828282)
+  }
 }

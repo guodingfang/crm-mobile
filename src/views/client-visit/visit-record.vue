@@ -40,7 +40,7 @@
 <script>
 import Tab from '@/views/client-visit/components/Tab'
 import Item from './components/Item'
-import { Collapse, CollapseItem, List, PullRefresh, Empty } from 'vant'
+import { Collapse, CollapseItem, List, PullRefresh, Empty, Toast } from 'vant'
 import { queryClockRecord } from '@/api/user'
 import { mapGetters, mapActions } from 'vuex'
 
@@ -113,13 +113,16 @@ export default {
 
     async queryClockRecord (option = {}) {
       const { reset = false, ...args } = option
-      const { code, data = [] } = await queryClockRecord({
+      const { code, data = [], msg = '' } = await queryClockRecord({
         limit: this.limit,
         page: this.page,
         descs: 'positionTime',
         ...args
       })
-      if (code !== 0) return
+      if (code !== 0) {
+        Toast(msg)
+        return
+      }
       const { records, current = 1, total } = data
       this.finished = this.page * this.limit > total
       this.page = current + 1
@@ -138,7 +141,7 @@ export default {
     },
     onSkipDetails ({ info }) {
       this.setCurrentVisit(info)
-      this.$router.push({ path: '/clientVisit/details' })
+      this.$router.push({ name: 'visitDetails' })
     }
   }
 }

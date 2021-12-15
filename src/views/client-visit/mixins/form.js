@@ -23,10 +23,14 @@ export default {
           flex: 'column',
           label: '地点',
           value: '',
-          readonly: true
+          readonly: true,
+          model: {
+            type: 'textarea',
+            autosize: true
+          }
         },
         {
-          id: 'positionDate',
+          id: 'positionTime',
           type: 'input',
           label: '定位时间',
           value: '',
@@ -61,7 +65,6 @@ export default {
           value: '',
           required: true,
           model: {
-            type: 'textarea',
             maxlength: 50,
             'show-word-limit': true
           }
@@ -87,6 +90,7 @@ export default {
           label: '后续行动计划',
           placeholder: '请输入后续行动计划',
           value: '',
+          required: true,
           model: {
             type: 'textarea',
             maxlength: 300,
@@ -98,6 +102,7 @@ export default {
   },
   methods: {
     async getFormInfo (info = {}) {
+      console.log('currentVisit', this.currentVisit)
       /**
        * '0' 可以编辑
        * '1' 本周内，可以编辑后三项
@@ -117,8 +122,8 @@ export default {
         switch (item.id) {
           case 'location':
             return { ...item, value: this.currentVisit.location }
-          case 'positionDate':
-            return { ...item, value: this.currentVisit.positionDate }
+          case 'positionTime':
+            return { ...item, value: this.currentVisit.positionTime }
           case 'customerName':
           case 'collaborators':
           case 'liaisonName':
@@ -137,7 +142,9 @@ export default {
       await this.getCustomerList(info)
     },
     async getCustomerList (info) {
-      const { code, data } = await getCustomerList({})
+      const { code, data } = await getCustomerList({
+        limit: 10000000
+      })
       if (code !== 0) return
       this.customerList = data
       const selectCustomer = this.customerList.find(item => item.customerName === info.customerName)

@@ -167,6 +167,15 @@ export default {
     .van-field__value {
       color: #969799;
       font-size: .14rem;
+      textarea {
+        -webkit-user-select: auto !important;
+      }
+      .van-field__word-limit {
+        color: @tipsColor;
+      }
+    }
+    &::after {
+      border: none;
     }
   }
 }

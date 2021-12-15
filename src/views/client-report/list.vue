@@ -14,7 +14,7 @@
       v-model="reloadLoading"
       @refresh="onReload"
     >
-      <Title class="title" :title="`当前共计${customerTotal}条报备客户`" :is-prefix="false" />
+      <Title class="title" :title="`当前${customerTotal || 0}条报备客户`" :is-prefix="false" />
       <List
         class="records-list"
         v-model="loading"
@@ -43,7 +43,7 @@
 
 <script>
 import Footer from '@/components/Footer'
-import { Search, List, PullRefresh, Empty } from 'vant'
+import { Search, List, PullRefresh, Empty, Toast } from 'vant'
 import Item from './components/Item'
 import Title from '@/components/Title'
 import { getCustomerList } from '@/api/customer'
@@ -95,10 +95,10 @@ export default {
 
     async getCustomerList (option = {}) {
       const { reset = false, ...args } = option
-      const { code = 0, data = null, total } = await getCustomerList({
+      const { code = 0, data = null, total, msg = '' } = await getCustomerList({
         page: this.page,
         limit: this.limit,
-        status: '0,2',
+        status: '0,2,3',
         ...args
       })
       this.customerTotal = total
@@ -106,6 +106,8 @@ export default {
       this.page = this.page + 1
       if (code === 0) {
         this.customerList = reset ? data : [...this.customerList, ...data]
+      } else {
+        Toast(msg)
       }
       this.loading = false
     },
@@ -130,10 +132,10 @@ export default {
       }, 1000)
     },
     onSkipDetails ({ customerId }) {
-      this.$router.push({ path: '/clientReport/details', query: { customerId } })
+      this.$router.push({ name: 'clientReportDetails', query: { customerId } })
     },
     onAdd () {
-      this.$router.push({ path: '/clientReport/details' })
+      this.$router.push({ name: 'clientReportDetails' })
     },
     onBack () {
       this.$router.go(-1)

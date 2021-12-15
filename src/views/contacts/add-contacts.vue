@@ -28,8 +28,7 @@ import Footer from '@/components/Footer'
 import { Toast } from 'vant'
 import { addContacts } from '@/api/customer'
 import { mapGetters, mapActions } from 'vuex'
-import moment from 'moment'
-// import moment from 'moment'
+import dayjs from 'dayjs'
 export default {
   name: 'addContacts',
   components: {
@@ -132,14 +131,14 @@ export default {
           params = {
             ...params,
             id: '',
-            createDate: moment().format('YYYY-MM-DD HH:mm:ss'),
+            createDate: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             creater: this.userInfo.name,
-            uploadDate: moment().format('YYYY-MM-DD HH:mm:ss')
+            uploadDate: dayjs().format('YYYY-MM-DD HH:mm:ss')
           }
         } else if (this.type === 'edit') {
           params = {
             ...params,
-            uploadDate: moment().format('YYYY-MM-DD HH:mm:ss')
+            uploadDate: dayjs().format('YYYY-MM-DD HH:mm:ss')
           }
         }
         const { code, msg = '' } = await addContacts({
@@ -170,6 +169,7 @@ export default {
     color: @whiteColor;
     font-size: .12rem;
     padding: .03rem .06rem;
+    border-radius: .06rem;
     background-color: rgb(25, 158, 216);
     &.not-btn {
       background-color: #aaa;

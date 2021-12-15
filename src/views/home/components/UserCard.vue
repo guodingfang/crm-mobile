@@ -15,15 +15,15 @@
           </dt>
           <dd>
             <span class="label">事业集群：</span>
-            <span class="val">{{ userInfo.group }}</span>
+            <span class="val">{{ userInfo.group || '--' }}</span>
           </dd>
           <dd>
             <span class="label">中心：</span>
-            <span class="val">{{ userInfo.center }}</span>
+            <span class="val">{{ userInfo.center || '--' }}</span>
           </dd>
           <dd>
             <span class="label">部门：</span>
-            <span class="val">{{ userInfo.dept }}</span>
+            <span class="val">{{ userInfo.dept || '--' }}</span>
           </dd>
         </dl>
         <div class="head-portrait">

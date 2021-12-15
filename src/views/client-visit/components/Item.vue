@@ -15,11 +15,14 @@
         {{ info.positionTime }}
       </div>
     </div>
+    <div class="del">
+      <svg-icon name="del" @click.stop="onDel"></svg-icon>
+    </div>
   </div>
 </template>
 
 <script>
-import { Tag } from 'vant'
+import { Tag, Dialog } from 'vant'
 export default {
   name: 'Item',
   components: {
@@ -43,6 +46,15 @@ export default {
       this.$emit('skip', {
         info: this.info
       })
+    },
+    onDel () {
+      Dialog.confirm({
+        message: '是否删除该打卡记录'
+      }).then(() => {
+        // on confirm
+      }).catch(() => {
+        // on cancel
+      })
     }
   }
 }
@@ -50,6 +62,7 @@ export default {
 
 <style scoped lang="less">
 .item {
+  position: relative;
   display: flex;
   flex-direction: column;
   color: @titleColor;
@@ -77,6 +90,13 @@ export default {
     .date {
       color: @textColor;
     }
+  }
+  .del {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    color: @textColor;
+    padding: .06rem .12rem;
   }
 }
 </style>

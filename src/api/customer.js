@@ -25,6 +25,17 @@ export const createCustomer = (option) => {
 }
 
 /**
+ * 客户信息保存
+ * @param option
+ * @returns {AxiosPromise}
+ */
+export const saveCustomer = (option) => {
+  return axios.post('/customer/save', {
+    ...option
+  })
+}
+
+/**
  * 删除客户信息
  * @param option
  * @returns {AxiosPromise}
