@@ -62,7 +62,8 @@ export default {
       customerList: [],
       page: 1,
       limit: 10,
-      customerTotal: 0
+      customerTotal: 0,
+      allowLoad: true
     }
   },
   computed: {
@@ -74,8 +75,9 @@ export default {
   },
   activated () {
     if (this.currentCustomer && this.customerList.length) {
+      console.log('currentCustomer', this.currentCustomer)
       this.customerList = this.customerList.map(item => item && item.id === this.currentCustomer.id
-        ? { ...this.currentCustomer } : item)
+        ? { ...item, ...this.currentCustomer } : item)
     }
     this.setCurrentCustomer(null)
   },
@@ -84,6 +86,9 @@ export default {
 
     // 获取客户列表
     async getCustomerList (option = {}) {
+      if (!this.allowLoad) return
+      this.allowLoad = false
+
       const { reset = false, ...args } = option
       const { code = -1, data = [], total, msg = '' } = await getCustomerList({
         page: this.page,
@@ -99,6 +104,7 @@ export default {
       } else {
         Toast(msg)
       }
+      this.allowLoad = true
       this.loading = false
     },
     onInputChange () {

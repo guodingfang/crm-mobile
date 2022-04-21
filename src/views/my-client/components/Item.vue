@@ -35,7 +35,7 @@
                 {{ liaisonUser.phoneNum || '无电话' }}
               </span>
             </div>
-            <div class="last-date">近一月拜访{{ info.visitLogList.length }}次</div>
+            <div class="last-date">近一月拜访{{ info.visitLogList ? info.visitLogList.length : 0 }}次</div>
           </div>
         </div>
       </div>
@@ -111,6 +111,7 @@ export default {
     .label {
       margin-left: .12rem;
       width: .38rem;
+      text-align: center;
       .characterLabel()
     }
   }

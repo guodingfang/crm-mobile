@@ -41,7 +41,13 @@ import { AddUserBtn } from '@/components/Button'
 import { ContactsItem } from '@/components/Contacts'
 import Title from '@/components/Title'
 import form from './mixins/form'
-import { getCustomerList, createCustomer, saveCustomer, resetCustomer, deleteCustomer } from '@/api/customer'
+import {
+  createCustomer,
+  saveCustomer,
+  resetCustomer,
+  deleteCustomer,
+  getCustomerDetails
+} from '@/api/customer'
 import { mapGetters, mapActions } from 'vuex'
 import dayjs from 'dayjs'
 import { SwipeCell, Toast, Dialog } from 'vant'
@@ -79,11 +85,11 @@ export default {
 
     async getCustomerInfo (customerId) {
       if (customerId) {
-        const { code = -1, data = [] } = await getCustomerList({
-          id: customerId
+        const { code = -1, data = {} } = await getCustomerDetails({
+          customerId: customerId
         })
         if (code !== 0) return
-        this.info = data.length ? data[0] : {}
+        this.info = data
         if (this.info.status === 2) {
           this.btnList = [
             { status: 'btn1', name: '提交', type: 'submit' },

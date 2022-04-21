@@ -1,12 +1,25 @@
 import axios from '../utils/request'
 
 /**
- * 获取客户列表、详情
+ * 获取客户列表
  * @param option
  * @returns {AxiosPromise}
  */
 export const getCustomerList = (option) => {
   return axios.get('/customer/queryCustomer', {
+    params: {
+      ...option
+    }
+  })
+}
+
+/**
+ * 获取客户详情
+ * @param option
+ * @returns {AxiosPromise}
+ */
+export const getCustomerDetails = (option) => {
+  return axios.get('/customer/get', {
     params: {
       ...option
     }

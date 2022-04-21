@@ -39,7 +39,7 @@ import Title from '@/components/Title'
 import Loading from '@/components/Loading'
 import { Form, Item } from '@/components/Form'
 import Footer from '@/components/Footer'
-import { getCustomerList, updateCustomer } from '@/api/customer'
+import { getCustomerDetails, updateCustomer } from '@/api/customer'
 import { ContactsItemModel } from '@/components/Contacts'
 import form from './mixins/form'
 import { mapActions, mapGetters } from 'vuex'
@@ -79,14 +79,14 @@ export default {
     ...mapActions('customer', ['setCurrentCustomer', 'setContactsInfo']),
 
     async getCustomerInfo () {
-      const { code = -1, data = [], msg = '' } = await getCustomerList({
-        id: this.customerId
+      const { code = -1, data = {}, msg = '' } = await getCustomerDetails({
+        customerId: this.customerId
       })
       if (code !== 0) {
         Toast(msg)
         return
       }
-      this.info = data.length ? data[0] : {}
+      this.info = data
       this.contactsList = this.info.liaisonList.map(item => ({ ...item, tag: Math.random() })) || []
       await this.getFormInfo(this.info)
       this.pageLoading = false

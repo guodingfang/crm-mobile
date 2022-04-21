@@ -78,7 +78,8 @@ export default {
       page: 1,
       limit: 10,
       customerTotal: 0,
-      customerName: ''
+      customerName: '',
+      allowLoad: true
     }
   },
   computed: {
@@ -112,6 +113,8 @@ export default {
   },
   methods: {
     async queryCustomerVisitManage (option = {}) {
+      if (!this.allowLoad) return
+      this.allowLoad = false
       const { reset = false, ...args } = option
       const { code, data } = await queryCustomerVisitManage({
         customerId: this.customerId,
@@ -122,9 +125,11 @@ export default {
       if (code !== 0) return
       const { records, total } = data
       this.finished = this.page * this.limit > total
+      this.customerTotal = total
       this.page = this.page + 1
       this.records = reset ? records : [...this.records, ...records]
       this.loading = false
+      this.allowLoad = true
     },
     async onLoadRecord () {
       await this.queryCustomerVisitManage()

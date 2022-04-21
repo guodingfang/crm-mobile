@@ -28,6 +28,7 @@
               :key="item.id"
               :info="item"
               @skip="onSkipDetails"
+              @del="onDelItem"
             />
           </CollapseItem>
         </Collapse>
@@ -41,7 +42,7 @@
 import Tab from '@/views/client-visit/components/Tab'
 import Item from './components/Item'
 import { Collapse, CollapseItem, List, PullRefresh, Empty, Toast } from 'vant'
-import { queryClockRecord } from '@/api/user'
+import { queryClockRecord, delClockRecord } from '@/api/user'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
@@ -64,7 +65,8 @@ export default {
       recordsArray: [],
       records: [],
       page: 1,
-      limit: 10
+      limit: 10,
+      allowLoad: true
     }
   },
   computed: {
@@ -112,6 +114,8 @@ export default {
     ...mapActions('visit', ['setCurrentVisit', 'setClockRecordId', 'setUpdateRecord']),
 
     async queryClockRecord (option = {}) {
+      if (!this.allowLoad) return
+      this.allowLoad = false
       const { reset = false, ...args } = option
       const { code, data = [], msg = '' } = await queryClockRecord({
         limit: this.limit,
@@ -128,6 +132,7 @@ export default {
       this.page = current + 1
       this.records = reset ? records : [...this.records, ...records]
       this.loading = false
+      this.allowLoad = true
     },
     async onLoadRecord () {
       await this.queryClockRecord()
@@ -142,6 +147,16 @@ export default {
     onSkipDetails ({ info }) {
       this.setCurrentVisit(info)
       this.$router.push({ name: 'visitDetails' })
+    },
+    async onDelItem ({ info }) {
+      console.log('info', info)
+      const { code, msg = '' } = await delClockRecord(info.id)
+      if (code !== 0) {
+        Toast(msg)
+      } else {
+        this.records = this.records.filter(item => item.id !== info.id)
+        Toast('删除成功')
+      }
     }
   }
 }

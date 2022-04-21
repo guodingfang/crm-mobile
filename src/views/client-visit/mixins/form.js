@@ -102,7 +102,6 @@ export default {
   },
   methods: {
     async getFormInfo (info = {}) {
-      console.log('currentVisit', this.currentVisit)
       /**
        * '0' 可以编辑
        * '1' 本周内，可以编辑后三项
@@ -143,6 +142,7 @@ export default {
     },
     async getCustomerList (info) {
       const { code, data } = await getCustomerList({
+        status: '1',
         limit: 10000000
       })
       if (code !== 0) return

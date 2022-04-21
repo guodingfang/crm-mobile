@@ -15,7 +15,7 @@
         {{ info.positionTime }}
       </div>
     </div>
-    <div class="del">
+    <div class="del" v-if="info.status === '0'">
       <svg-icon name="del" @click.stop="onDel"></svg-icon>
     </div>
   </div>
@@ -51,6 +51,9 @@ export default {
       Dialog.confirm({
         message: '是否删除该打卡记录'
       }).then(() => {
+        this.$emit('del', {
+          info: this.info
+        })
         // on confirm
       }).catch(() => {
         // on cancel

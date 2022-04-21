@@ -96,12 +96,13 @@ export default {
   methods: {
     ...mapActions('util', ['setProvinceList', 'setCustomerCharacter', 'setCustomerType']),
     async getFormInfo (info = {}) {
+      const manager = info.managerList.length ? info.managerList[0] : null
       this.formInfo = this.formInfo.map(item => {
         switch (item.id) {
           case 'manager':
-            return { ...item, value: this.userInfo.name }
+            return { ...item, value: manager ? manager.managerName : '' }
           case 'orgName':
-            return { ...item, value: this.userInfo.dept }
+            return { ...item, value: manager ? manager.orgName : '' }
           default:
             return {
               ...item,

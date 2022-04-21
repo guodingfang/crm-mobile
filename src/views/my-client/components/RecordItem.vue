@@ -57,10 +57,12 @@ export default {
   .footer {
     display: flex;
     .location {
+      flex: 1;
       color: @textColor;
       margin-right: auto;
     }
     .visit-user {
+      margin-left: .08rem;
       color: @textColor;
     }
     .icon {

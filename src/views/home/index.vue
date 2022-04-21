@@ -20,7 +20,7 @@
 <!--        <Filtrate />-->
       </div>
 
-      <BriefReport />
+      <BriefReport :week-visit-amount="weekVisitAmount" :month-visit-amount="monthVisitAmount" />
     </div>
 
     <DemoModel v-if="false"/>
@@ -35,6 +35,8 @@ import BriefReport from '@/views/home/components/BriefReport'
 import DemoModel from '@/views/home/components/DemoModel'
 import { getUserBaseInfo, getUserInfo } from '@/api/user'
 import { mapActions } from 'vuex'
+import { queryVisitNum } from '@/api/visit'
+import { Toast } from 'vant'
 export default {
   name: 'index',
   components: {
@@ -48,6 +50,8 @@ export default {
   data () {
     return {
       userInfo: null,
+      weekVisitAmount: 0,
+      monthVisitAmount: 0,
       modelList: [
         { name: '客户信息', model: 'myClient', backgroundColor: '#ffca78' },
         { name: '客户报备', model: 'clientReport', backgroundColor: '#39aff9' },
@@ -57,8 +61,9 @@ export default {
       ]
     }
   },
-  mounted () {
-    this.getUserBaseInfo()
+  async mounted () {
+    await this.getUserBaseInfo()
+    await this.getVisitAmount()
   },
   methods: {
     ...mapActions('user', ['setUserInfo']),
@@ -86,6 +91,16 @@ export default {
     onSkipModel (model) {
       if (model !== 'expect') {
         this.$router.push({ name: model })
+      }
+    },
+    async getVisitAmount () {
+      const { code, data = {}, msg } = await queryVisitNum()
+      if (code !== 0) {
+        Toast(msg)
+      } else {
+        const { weekNum = 0, monthNum = 0 } = data || {}
+        this.weekVisitAmount = weekNum
+        this.monthVisitAmount = monthNum
       }
     }
   }

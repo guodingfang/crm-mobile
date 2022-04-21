@@ -93,8 +93,7 @@ const routes = [
       name: 'outClock',
       component: () => import('@/views/client-visit/out-clock'),
       meta: {
-        title: '客户拜访',
-        keepAlive: true
+        title: '客户拜访'
       }
     }, {
       path: 'visitRecord',

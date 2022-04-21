@@ -49,3 +49,11 @@ export const queryCustomerVisitManage = (option) => {
     }
   })
 }
+
+/**
+ * 获取当周/月拜访次数
+ * @returns {AxiosPromise}
+ */
+export const queryVisitNum = () => {
+  return axios.get('/visitLog/queryVisitNum')
+}

@@ -47,6 +47,19 @@ export const addClockRecord = (option) => {
 }
 
 /**
+ * 删除打卡记录
+ * @param id
+ * @returns {*}
+ */
+export const delClockRecord = (id) => {
+  return axios.get('/position/removePosition', {
+    params: {
+      id
+    }
+  })
+}
+
+/**
  * 获取今天的打卡数量
  * @returns {AxiosPromise}
  */
@@ -67,7 +80,7 @@ export const queryClockRecord = (option) => {
 }
 
 /**
- * 查询打卡记录和数量
+ * 判断拜访记录是否可以编辑
  * @returns {AxiosPromise}
  */
 export const judgeClockIsEdit = (id) => {

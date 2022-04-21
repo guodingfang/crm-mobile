@@ -1,11 +1,11 @@
 <template>
   <div class="list">
     <div class="item">
-      <div class="val">10</div>
+      <div class="val">{{ weekVisitAmount }}</div>
       <div class="label">本周行动次数</div>
     </div>
     <div class="item">
-      <div class="val">12</div>
+      <div class="val">{{ monthVisitAmount }}</div>
       <div class="label">本月行动次数</div>
     </div>
   </div>
@@ -13,7 +13,11 @@
 
 <script>
 export default {
-  name: 'BriefReport'
+  name: 'BriefReport',
+  props: {
+    weekVisitAmount: Number,
+    monthVisitAmount: Number
+  }
 }
 </script>
 

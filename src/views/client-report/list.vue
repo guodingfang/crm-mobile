@@ -71,7 +71,8 @@ export default {
       customerTotal: 0,
       btnList: [
         { status: 'btn1', name: '新建', type: 'add' }
-      ]
+      ],
+      allowLoad: true
     }
   },
   computed: {
@@ -94,6 +95,8 @@ export default {
     ...mapActions('customer', ['setRestCustomerList']),
 
     async getCustomerList (option = {}) {
+      if (!this.allowLoad) return
+      this.allowLoad = false
       const { reset = false, ...args } = option
       const { code = 0, data = null, total, msg = '' } = await getCustomerList({
         page: this.page,
@@ -110,6 +113,7 @@ export default {
         Toast(msg)
       }
       this.loading = false
+      this.allowLoad = true
     },
     onInputChange () {
       this.page = 1
