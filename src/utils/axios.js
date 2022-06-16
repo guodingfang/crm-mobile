@@ -17,7 +17,7 @@ class HttpRequest {
     return {
       baseURL: baseURL || this.baseURL,
       headers: headers || {
-        // Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzNDU0OCIsImlzcyI6IlJvY0tvbnRyb2wuY29tIiwiZXhwIjoxNjUwNTEwODgyLCJpYXQiOjE2NTA1MDM2ODIsInVzZXJpbmZvIjp7ImNvZGUiOiIzNDU0OCIsIm9yZ05hbWUiOiLkupHpk77lpKfmlbDmja7mioDmnK_pg6giLCJvcmdDb2RlIjoiMDcwMTAxIiwibmFtZSI6IumDreS4geaWuSIsInVzZXJJZCI6IjM0NTQ4IiwidXNlcm5hbWUiOiJndW9kaW5nZmFuZyJ9LCJqdGkiOiIxODA0OWFmOGI3MiJ9.kMtVYgaqyKjLu33DYbem4YtYupMqSBBgNNIpPp6xoA8',
+        Authorization: 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIzMjg2OCIsImlzcyI6IlJvY0tvbnRyb2wuY29tIiwiZXhwIjoxNjU1MzY1MjcwLCJpYXQiOjE2NTUzNTgwNzAsInVzZXJpbmZvIjp7ImNvZGUiOiIzMjg2OCIsIm9yZ05hbWUiOiLkupHpk77lpKfmlbDmja7mioDmnK_pg6giLCJvcmdDb2RlIjoiMDcwMTAxIiwibmFtZSI6IueUsOWutumpuSIsInVzZXJJZCI6Ijg0NyIsInVzZXJuYW1lIjoidGlhbmppYWp1In0sImp0aSI6IjE4MTZiMDc5ZWI2In0.rt8zYjyWbc-Xfgw_JH13GgB6R2VoRpxQ6QbTYuEFzzI',
         'Content-Type': 'application/json;charset=utf-8'
       },
       timeout: 10000

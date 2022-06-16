@@ -56,7 +56,7 @@ export default {
         { name: '客户信息', model: 'myClient', backgroundColor: '#ffca78' },
         { name: '客户报备', model: 'clientReport', backgroundColor: '#39aff9' },
         { name: '客户拜访', model: 'clientVisit', backgroundColor: '#7d72f9' },
-        { name: '潜在订单', model: 'projectTrack', backgroundColor: '#ff7173' }
+        { name: '跟踪周报', model: 'projectTrack', backgroundColor: '#ff7173' }
         // { name: '敬请期待', model: 'expect' }
       ]
     }
