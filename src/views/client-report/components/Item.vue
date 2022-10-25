@@ -54,7 +54,7 @@ export default {
     },
     errorAccount () {
       if (this.info.status === 2) {
-        return this.info.regLogList[0]?.notes
+        return this.info.regLogList ? this.info.regLogList[0]?.notes : ''
       } else {
         return ''
       }
@@ -74,8 +74,6 @@ export default {
 .item-container {
   background: @cardBg;
   padding: .12rem;
-  margin: 0 .06rem .06rem .06rem;
-  border-radius: .06rem;
 }
 .item {
   display: flex;
@@ -122,6 +120,10 @@ export default {
     flex-direction: column;
     font-size: .12rem;
     color: @regColor;
+    .val {
+      word-wrap: break-word;
+      word-break: normal;
+    }
   }
 }
 </style>

@@ -1,5 +1,6 @@
 import { getRegionInfo } from '@/api/util'
 import { mapActions, mapGetters } from 'vuex'
+import moment from 'moment/moment'
 
 export default {
   data () {
@@ -11,6 +12,7 @@ export default {
           flex: 'column',
           label: '客户名称',
           value: '',
+          placeholder: '请输入客户名称',
           readonly: true
         },
         {
@@ -18,50 +20,99 @@ export default {
           type: 'select',
           label: '客户性质',
           value: '',
-          columns: []
+          columns: [],
+          required: true
         },
         {
-          id: 'province',
+          id: 'type',
           type: 'select',
-          label: '所在省份',
+          label: '客户类型',
           value: '',
           columns: [],
-          selectConfigs: {
-            label: 'regionCode',
-            value: 'regionName'
-          }
+          required: true
         },
         {
-          id: 'city',
-          type: 'select',
-          label: '所在城市',
-          value: '',
-          columns: [],
-          selectConfigs: {
-            label: 'regionCode',
-            value: 'regionName'
-          }
-        },
-        {
-          id: 'address',
+          id: 'estiblishTime',
           type: 'input',
-          flex: 'column',
-          label: '地址',
+          label: '注册日期',
+          readonly: true,
+          placeholder: '',
           value: ''
         },
         {
-          id: 'orgName',
+          id: 'regCapitalAmount',
           type: 'input',
-          label: '业务部门',
-          value: '',
-          readonly: true
+          label: '注册资本',
+          readonly: true,
+          placeholder: '',
+          value: ''
         },
         {
-          id: 'manager',
+          id: 'creditCode',
           type: 'input',
-          label: '客户经理',
+          label: '统一社会信用代码',
+          readonly: true,
+          placeholder: '',
+          value: ''
+        },
+        {
+          id: 'legalPersonName',
+          type: 'input',
+          label: '法人',
+          readonly: true,
+          placeholder: '',
+          value: ''
+        },
+        {
+          id: 'province',
+          type: 'input',
+          label: '所在省份',
           value: '',
+          columns: [],
           readonly: true
+          // selectConfigs: {
+          //   label: 'regionCode',
+          //   value: 'regionName'
+          // }
+        },
+        {
+          id: 'city',
+          type: 'input',
+          label: '所在城市',
+          value: '',
+          columns: [],
+          readonly: true
+          // selectConfigs: {
+          //   notSelect: true,
+          //   tips: '请先选择所在省份',
+          //   label: 'regionCode',
+          //   value: 'regionName'
+          // }
+        },
+        {
+          id: 'taxAddress',
+          type: 'input',
+          flex: 'column',
+          label: '详细地址',
+          readonly: true,
+          placeholder: '请输入客户地址',
+          value: ''
+        },
+        {
+          id: 'historyNames',
+          type: 'input',
+          label: '曾用名',
+          readonly: true,
+          placeholder: '暂无',
+          value: ''
+        },
+        {
+          id: 'constructedContent',
+          type: 'input',
+          flex: 'column',
+          label: '已建设内容',
+          placeholder: '请输入已建设内容',
+          value: ''
         }
       ]
     }
@@ -73,18 +124,11 @@ export default {
     ...mapActions('util', ['setProvinceList', 'setCustomerCharacter', 'setCustomerType']),
 
     async getFormInfo (info) {
+      console.log('info', info)
       this.formInfo = this.formInfo.map(item => {
         switch (item.id) {
-          case 'manager':
-            return {
-              ...item,
-              value: info.managerList.find(item => item.owner === 0)?.managerName
-            }
-          case 'orgName':
-            return {
-              ...item,
-              value: info.managerList.find(item => item.owner === 0)?.orgName
-            }
+          case 'estiblishTime':
+            return { ...item, value: info.estiblishTime ? moment(info.estiblishTime).format('YYYY-MM-DD') : '-' }
           default:
             return {
               ...item,
@@ -92,6 +136,12 @@ export default {
             }
         }
       })
+
+      // 只读状态
+      if (this.readOnly) {
+        this.formInfo = this.formInfo.map(item => ({ ...item, readonly: true }))
+      }
+
       await this.getCustomerCharacter()
       await this.getCustomerType()
       await this.getProvince()

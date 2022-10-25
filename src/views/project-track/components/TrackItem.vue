@@ -1,26 +1,32 @@
 <template>
-  <div class="item">
+  <div class="item" @click="onSkipWeekItem">
     <div class="header">
-      <div class="title">2021年第38周</div>
-      <div class="status">赢率</div>
+      <div class="title">2021年第{{ info.weekNum }}周</div>
+      <div class="status">赢率{{ info.winRate }}%</div>
     </div>
     <div class="content">
       <p>
-        本周进展内容本周进展内容本周进展内容本周进展内容本周进展
-        本周进展内容本周进展内容本周进展内容本周进展内容本周进展
-        本周进展内容本周进展内容本周进展内容本周进展内容本周…
+        {{ info.weeklyTask }}
       </p>
     </div>
     <div class="footer">
-      <div class="user">填写人：小王</div>
-      <div class="time">填写时间：2020-01-01</div>
+      <div class="user">填写人：{{ info.creater }}</div>
+      <div class="time">填写时间：{{ info.createDate }}</div>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'TrackItem'
+  name: 'TrackItem',
+  props: {
+    info: Object
+  },
+  methods: {
+    onSkipWeekItem () {
+      this.$emit('skip')
+    }
+  }
 }
 </script>
 
@@ -31,6 +37,7 @@ export default {
   background-color: @cardBg;
   border-radius: .06rem;
   padding: .12rem;
+  margin: 0 .06rem .06rem .06rem;
   .header {
     display: flex;
     .title {

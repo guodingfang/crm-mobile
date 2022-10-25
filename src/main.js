@@ -11,14 +11,19 @@ import VueEllipseProgress from 'vue-ellipse-progress'
 import '@/icons' // 引入 svg icon
 import '@/utils/resize' // 监听浏览器窗口变化设置字体大小（rem）
 import '@/styles/index.less'
+import directives from '@/utils/directives'
 
-if (process.env.NODE_ENV !== 'development') {
-  const vConsole = new VConsole()
-  Vue.use(vConsole)
-}
+// if (process.env.NODE_ENV !== 'development') {
+//   const vConsole = new VConsole()
+//   Vue.use(vConsole)
+// }
 
 Vue.use(Button)
 Vue.use(VueEllipseProgress)
+
+Object.keys(directives).forEach((key) => {
+  Vue.directive(key, directives[key])
+})
 
 Vue.config.productionTip = false
 

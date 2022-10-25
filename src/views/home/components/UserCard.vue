@@ -27,7 +27,16 @@
           </dd>
         </dl>
         <div class="head-portrait">
-          <img :src="avatar" alt="">
+          <VanImage
+            width=".56rem"
+            height=".56rem"
+            round
+            cover
+            center
+            :src="avatar"
+          >
+            <template v-slot:error>没有图片</template>
+          </VanImage>
           <!--      <span>发送名片</span>-->
         </div>
       </div>
@@ -36,11 +45,12 @@
 </template>
 
 <script>
-import { Skeleton } from 'vant'
+import { Skeleton, Image as VanImage } from 'vant'
 export default {
   name: 'UserCard',
   components: {
-    Skeleton
+    Skeleton,
+    VanImage
   },
   props: {
     userInfo: {
@@ -109,11 +119,6 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
-    img {
-      width: .56rem;
-      height: .56rem;
-      border-radius: 50%;
-    }
     span {
       margin-top: .16rem;
       color: @linkColor;

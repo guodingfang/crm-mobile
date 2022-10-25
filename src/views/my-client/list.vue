@@ -1,161 +1,84 @@
 <template>
-  <div>
-    <div class="search-container">
-      <Search
-        class="search"
-        v-model="searchVal"
-        shape="round"
-        placeholder="搜索客户名称"
-        @input="onInputChange"
-      />
-    </div>
-    <PullRefresh
-      v-if="customerList.length"
-      v-model="reloadLoading"
-      @refresh="onReload"
+  <div class="tab-container">
+    <Tabs
+      v-if="isRoles"
+      v-model="active"
+      :swipeable="false"
+      title-active-color="#02A7F0"
     >
-      <Title class="title" :title="`当前有负责${customerTotal || 0}个客户`" :is-prefix="false"/>
-      <List
-        class="list"
-        v-model="loading"
-        @load="onLoadCustomer"
-        :finished="finished"
-        finished-text="没有更多了"
-        :immediate-check="false"
-        offset="100"
-      >
-        <Item
-          v-for="(item, index) in customerList"
-          :key="index"
-          :info="item"
-          @skip="onSkipDetails"
-        />
-      </List>
-    </PullRefresh>
-    <Empty v-else description="暂无客户" />
+      <Tab :title="`全部客户(${totalCount})`">
+        <Content v-if="active === 0" content-type="total" />
+      </Tab>
+      <Tab :title="`我的客户(${ownerCount})`">
+        <Content v-if="active === 1" content-type="owner" />
+      </Tab>
+      <Tab :title="`下属客户(${subCount})`">
+        <Content v-if="active === 2" content-type="sub" />
+      </Tab>
+    </Tabs>
+    <Content v-else type="total" />
   </div>
 </template>
 
 <script>
-import { Search, List, PullRefresh, Empty, Toast } from 'vant'
-import Title from '@/components/Title'
-import Item from './components/Item'
-import { getCustomerList } from '@/api/customer'
-import { mapGetters, mapActions } from 'vuex'
+import { Tabs, Tab } from 'vant'
+import Content from './components/Content'
+import { mapGetters } from 'vuex'
+import { getCustomerCount } from '@/api/customer'
 
 export default {
   name: 'MyClientList',
   components: {
-    Search,
-    Title,
-    Item,
-    List,
-    PullRefresh,
-    Empty
+    Tabs,
+    Tab,
+    Content
   },
   data () {
     return {
-      reloadLoading: false,
-      loading: false,
-      finished: false,
-      searchVal: '',
-      customerList: [],
-      page: 1,
-      limit: 10,
-      customerTotal: 0,
-      allowLoad: true
+      active: 0,
+      ownerCount: 0,
+      subCount: 0,
+      totalCount: 0
     }
   },
   computed: {
-    ...mapGetters(['userInfo', 'currentCustomer'])
+    ...mapGetters(['userInfo', 'headerHeight']),
+    isRoles () {
+      const { roles = [] } = this.userInfo
+      return roles.includes('CRM大区经理') || roles.includes('CRM管理员') || roles.includes('CRM营销总监')
+    }
   },
   mounted () {
-    this.customerList = Array.apply(null, Array(3))
-    this.getCustomerList({ reset: true })
+    this.getCount()
   },
   activated () {
-    if (this.currentCustomer && this.customerList.length) {
-      console.log('currentCustomer', this.currentCustomer)
-      this.customerList = this.customerList.map(item => item && item.id === this.currentCustomer.id
-        ? { ...item, ...this.currentCustomer } : item)
-    }
-    this.setCurrentCustomer(null)
+
   },
   methods: {
-    ...mapActions('customer', ['setCurrentCustomer']),
-
-    // 获取客户列表
-    async getCustomerList (option = {}) {
-      if (!this.allowLoad) return
-      this.allowLoad = false
-
-      const { reset = false, ...args } = option
-      const { code = -1, data = [], total, msg = '' } = await getCustomerList({
-        page: this.page,
-        limit: this.limit,
-        status: '1',
-        ...args
-      })
-      this.customerTotal = total
-      this.finished = this.page * this.limit > total
-      this.page = this.page + 1
-      if (code === 0) {
-        this.customerList = reset ? data : [...this.customerList, ...data]
-      } else {
-        Toast(msg)
-      }
-      this.allowLoad = true
-      this.loading = false
-    },
-    onInputChange () {
-      this.page = 1
-      this.getCustomerList({
-        customerName: this.searchVal,
-        reset: true
-      })
-    },
-    onLoadCustomer () {
-      this.getCustomerList()
-    },
-    async onReload () {
-      this.page = 1
-      await this.getCustomerList({
-        customerName: this.searchVal,
-        reset: true
-      })
-      setTimeout(() => {
-        this.reloadLoading = false
-      }, 1000)
-    },
-    onSkipDetails ({ customerId }) {
-      this.$router.push({ name: 'myClientDetails', query: { customerId } })
+    async getCount () {
+      const { code, data } = await getCustomerCount({ status: '1' })
+      if (code !== 0) return
+      const { ownerCount = 0, subCount = 0 } = data
+      this.ownerCount = ownerCount
+      this.subCount = subCount
+      this.totalCount = ownerCount + subCount
     }
   }
 }
 </script>
 
 <style scoped lang="less">
-.search-container {
-  height: .54rem;
-  .search {
-    width: 100%;
-    position: fixed;
-    z-index: 999;
-    .boxShadow()
+.tab-container {
+  /deep/ .van-tabs {
+    .van-tabs__nav {
+      position: fixed;
+      width: 100%;
+      height: 0.44rem;
+      z-index: 999;
+    }
+    .van-tabs__line {
+      background-color: #02A7F0;
+    }
   }
-}
-.title {
-  margin-left: .12rem;
-}
-.customer-total {
-  margin-left: .12rem;
-  font-size: .14rem;
-  height: .24rem;
-  display: flex;
-  align-items: center;
-  color: @textColor;
-}
-.list {
-  margin: 0 .06rem;
 }
 </style>

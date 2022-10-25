@@ -26,6 +26,11 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-
+<style lang="less">
+.van-empty {
+  padding-bottom: 2rem !important;
+}
+em {
+  color: rgb(25, 158, 216) !important;
+}
 </style>

@@ -19,7 +19,6 @@ export default {
       if (window.android) {
         const setLocation = (data) => {
           const location = data
-          console.log('data', data)
           this.location = location
           this.locationParse(location)
         }
@@ -43,7 +42,7 @@ export default {
     async locationParse (location) {
       const { lat, lng } = typeof location === 'string' ? JSON.parse(location) : location || {}
       const data = await getLocation({
-        key: 'cd15b18eda3478b6b67a985b24589d09',
+        key: 'd62f595552a9afb894e46d2247e09a27',
         location: `${lng},${lat}`
       })
       const {
@@ -52,6 +51,7 @@ export default {
         }
       } = data
       this.address = address
+      this.isLocation = true
     }
   }
 }

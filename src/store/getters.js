@@ -10,7 +10,9 @@ const getters = {
   customerType: state => state.util.customerType,
   currentVisit: state => state.visit.currentVisit,
   clockRecordId: state => state.visit.clockRecordId,
-  updateRecord: state => state.visit.updateRecord
+  updateRecord: state => state.visit.updateRecord,
+  currentProject: state => state.week.currentProject,
+  contactsRol: state => state.util.contactsRol
 }
 
 export default getters

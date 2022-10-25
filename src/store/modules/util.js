@@ -1,4 +1,11 @@
-import { getRegionInfo, getCustomerCharacter, getCustomerType } from '@/api/util'
+import {
+  getRegionInfo,
+  getCustomerCharacter,
+  getCustomerType,
+  getProjectModel,
+  getPreSaleStatus,
+  getContactsRol, getVisiType
+} from '@/api/util'
 
 const getDefaultState = () => {
   return {
@@ -6,7 +13,10 @@ const getDefaultState = () => {
     pageLoading: false,
     provinceList: null,
     customerCharacter: null,
-    customerType: null
+    customerType: null,
+    projectModel: null,
+    preSaleStatus: null,
+    contactsRol: null
   }
 }
 
@@ -19,14 +29,26 @@ const mutations = {
   SET_PAGE_LOADING: (state, loading) => {
     state.pageLoading = loading
   },
-  SET_PROVINCE_LIST: (state, list) => {
-    state.provinceList = list
+  SET_PROVINCE_LIST: (state, data) => {
+    state.provinceList = data
   },
-  SET_CUSTOMER_CHARACTER: (state, list) => {
-    state.customerCharacter = list
+  SET_CUSTOMER_CHARACTER: (state, data) => {
+    state.customerCharacter = data
   },
-  SET_CUSTOMER_TYPE: (state, list) => {
-    state.customerType = list
+  SET_CUSTOMER_TYPE: (state, data) => {
+    state.customerType = data
+  },
+  SET_PROJECT_MODEL: (state, data) => {
+    state.projectModel = data
+  },
+  SET_PRE_SALE_STATUS: (state, data) => {
+    state.preSaleStatus = data
+  },
+  SET_CONTACTS_ROL: (state, data) => {
+    state.contactsRol = data
+  },
+  SET_VISI_TYPE: (state, data) => {
+    state.visiType = data
   }
 }
 
@@ -61,6 +83,43 @@ const actions = {
     const { code, data } = await getCustomerType()
     if (code === 0) {
       commit('SET_CUSTOMER_TYPE', data)
+      return data
+    } else {
+      return []
+    }
+  },
+  async setProjectModel ({ commit }) {
+    const { code, data } = await getProjectModel()
+    if (code === 0) {
+      commit('SET_PROJECT_MODEL', data)
+      return data
+    } else {
+      return []
+    }
+  },
+  async setPreSaleStatus ({ commit }) {
+    const { code, data } = await getPreSaleStatus()
+    const status = data.filter(item => item.dicName === '投标中' || item.dicName === '签单中')
+    if (code === 0) {
+      commit('SET_PRE_SALE_STATUS', status)
+      return status
+    } else {
+      return []
+    }
+  },
+  async setContactsRol ({ commit }) {
+    const { code, data } = await getContactsRol()
+    if (code === 0) {
+      commit('SET_CONTACTS_ROL', data)
+      return data
+    } else {
+      return []
+    }
+  },
+  async setVisiType ({ commit }) {
+    const { code, data } = await getVisiType()
+    if (code === 0) {
+      commit('SET_VISI_TYPE', data)
       return data
     } else {
       return []

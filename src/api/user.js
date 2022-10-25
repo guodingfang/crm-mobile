@@ -9,6 +9,26 @@ export const getUserBaseInfo = (option) => {
   })
 }
 
+// 退出
+export const logout = (option) => {
+  return axios.get(`${window.crmPrefix}/logout`, {
+    ...option
+  }, {
+    baseURL: '/'
+  })
+}
+
+// 获取用户头像
+export const getUserAvatar = (option) => {
+  return axios.get(`${window.crmPrefix}/Services/avater`, {
+    params: {
+      ...option
+    }
+  }, {
+    baseURL: '/'
+  })
+}
+
 /**
  * 获取用户信息接口
  * @param code 用户code
@@ -16,6 +36,19 @@ export const getUserBaseInfo = (option) => {
  */
 export const getUserInfo = ({ code }) => {
   return axios.get('/user/query', {
+    params: {
+      code
+    }
+  })
+}
+
+/**
+ * 获取用户权限
+ * @param code
+ * @returns {AxiosPromise}
+ */
+export const getRoles = ({ code }) => {
+  return axios.get('user/getRoleByCode', {
     params: {
       code
     }
@@ -89,4 +122,12 @@ export const judgeClockIsEdit = (id) => {
       id
     }
   })
+}
+
+/**
+ * 统计自己和下属的打卡记录
+ * @returns {AxiosPromise}
+ */
+export const getVisitCount = () => {
+  return axios.get('/position/visitCount', {})
 }

@@ -5,7 +5,7 @@
         <svg-icon class="icon" name="location" />
         <span>{{ info.location }}</span>
       </div>
-      <Tag plain :color="tagColor">{{ info.status === '0' ? '未填写' : '已填写' }}</Tag>
+      <Tag :color="tagColor">{{ info.status === '0' ? '未填写' : '已填写' }}</Tag>
     </div>
     <div class="content">
       备注：{{ info.notes }}
@@ -15,14 +15,20 @@
         {{ info.positionTime }}
       </div>
     </div>
-    <div class="del" v-if="info.status === '0'">
-      <svg-icon name="del" @click.stop="onDel"></svg-icon>
-    </div>
+    <template v-if="info.managerName !== userInfo.name">
+      <div class="manager">{{ info.managerName }}</div>
+    </template>
+    <template v-else>
+      <div class="del" v-if="info.status === '0'">
+        <svg-icon name="del" @click.stop="onDel"></svg-icon>
+      </div>
+    </template>
   </div>
 </template>
 
 <script>
 import { Tag, Dialog } from 'vant'
+import { mapGetters } from 'vuex'
 export default {
   name: 'Item',
   components: {
@@ -37,15 +43,24 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['userInfo']),
     tagColor () {
-      return this.info.status === '0' ? '#87E8DE' : '#91D5FF'
+      return this.info.status === '0' ? '#96e0d5' : '#facd91'
     }
   },
   methods: {
     onSkipDetails () {
-      this.$emit('skip', {
-        info: this.info
-      })
+      if (this.info.managerName !== this.userInfo.name) {
+        if (this.info.status !== '0') {
+          this.$emit('skip', {
+            info: this.info
+          })
+        }
+      } else {
+        this.$emit('skip', {
+          info: this.info
+        })
+      }
     },
     onDel () {
       Dialog.confirm({
@@ -94,12 +109,16 @@ export default {
       color: @textColor;
     }
   }
-  .del {
+  .del, .manager {
     position: absolute;
     right: 0;
     bottom: 0;
     color: @textColor;
     padding: .06rem .12rem;
+  }
+  .manager {
+    color: @tipsColor;
+    font-size: .12rem;
   }
 }
 </style>

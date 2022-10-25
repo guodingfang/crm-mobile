@@ -10,12 +10,12 @@
       />
     </div>
     <PullRefresh
-      v-if="customerList.length"
       v-model="reloadLoading"
       @refresh="onReload"
     >
-      <Title class="title" :title="`当前${customerTotal || 0}条报备客户`" :is-prefix="false" />
+      <Title class="title" :title="`当前共${customerTotal || 0}条报备客户`" :is-prefix="false" />
       <List
+        v-if="customerList.length"
         class="records-list"
         v-model="loading"
         @load="onLoadCustomer"
@@ -24,17 +24,31 @@
         offset="100"
         :immediate-check="false"
       >
-        <Item
-          v-for="(item, index) in customerList"
-          :key="index"
-          :info="item"
-          @skip="onSkipDetails"
-        />
+        <div v-for="(item, index) in customerList" :key="index" class="records-item">
+          <SwipeCell v-if="item && item.status === 3">
+            <Item
+              :info="item"
+              @skip="onSkipDetails"
+            />
+            <template #right>
+              <div class="del-records" @click.stop="onDelRecords(item)">
+                删除
+              </div>
+            </template>
+          </SwipeCell>
+          <Item
+            :key="index"
+            v-else
+            :info="item"
+            @skip="onSkipDetails"
+          />
+        </div>
       </List>
+      <Empty v-else description="暂无客户记录" />
     </PullRefresh>
-    <Empty v-else description="暂无客户记录" />
     <Footer
       :btn-list="btnList"
+      :is-allow-click.sync="isAllowClick"
       @add="onAdd"
       @back="onBack"
     />
@@ -43,10 +57,10 @@
 
 <script>
 import Footer from '@/components/Footer'
-import { Search, List, PullRefresh, Empty, Toast } from 'vant'
+import { Search, List, PullRefresh, Empty, SwipeCell, Toast } from 'vant'
 import Item from './components/Item'
 import Title from '@/components/Title'
-import { getCustomerList } from '@/api/customer'
+import { getCustomerList, removeCustomer } from '@/api/customer'
 import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'ReportList',
@@ -57,7 +71,8 @@ export default {
     Item,
     List,
     PullRefresh,
-    Empty
+    Empty,
+    SwipeCell
   },
   data () {
     return {
@@ -70,13 +85,14 @@ export default {
       limit: 10,
       customerTotal: 0,
       btnList: [
-        { status: 'btn1', name: '新建', type: 'add' }
+        { status: 'btn1', name: '新建报备', type: 'add' }
       ],
-      allowLoad: true
+      allowLoad: true,
+      isAllowClick: true
     }
   },
   computed: {
-    ...mapGetters(['restCustomerList'])
+    ...mapGetters(['userInfo', 'restCustomerList'])
   },
   activated () {
     if (this.restCustomerList) {
@@ -102,6 +118,7 @@ export default {
         page: this.page,
         limit: this.limit,
         status: '0,2,3',
+        managerName: this.userInfo.name,
         ...args
       })
       this.customerTotal = total
@@ -136,10 +153,19 @@ export default {
       }, 1000)
     },
     onSkipDetails ({ customerId }) {
-      this.$router.push({ name: 'clientReportDetails', query: { customerId } })
+      this.$router.push({ name: 'clientReportDetails', query: { customerId, exists: true } })
+    },
+    async onDelRecords (item) {
+      const { code } = await removeCustomer({
+        customerId: item.id
+      })
+      if (code === 0) {
+        this.customerList = this.customerList.filter(customer => customer.id !== item.id)
+      }
     },
     onAdd () {
-      this.$router.push({ name: 'clientReportDetails' })
+      this.$router.push({ name: 'clientCompany' })
+      this.isAllowClick = true
     },
     onBack () {
       this.$router.go(-1)
@@ -163,6 +189,25 @@ export default {
 }
 .records-list {
   min-height: calc(100vh - 1.9rem);
+  .records-item {
+    margin: 0 .06rem .06rem .06rem;
+    border-radius: .06rem;
+    overflow: hidden;
+    .del-records {
+      min-width: 100%;
+      width: .6rem;
+      height: 100%;
+      background-color: rgb(238, 10, 36);
+      color: @whiteColor;
+      font-size: .12rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      /deep/ .van-button {
+        height: 100%;
+      }
+    }
+  }
 }
 .footer {
   display: flex;

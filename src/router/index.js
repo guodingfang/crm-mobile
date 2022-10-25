@@ -68,6 +68,15 @@ const routes = [
     }
   },
   {
+    path: '/clientReport/company',
+    name: 'clientCompany',
+    component: () => import('@/views/client-report/company'),
+    meta: {
+      title: '客户报备',
+      keepAlive: true
+    }
+  },
+  {
     path: '/clientReport/details',
     name: 'clientReportDetails',
     component: () => import('@/views/client-report/details'),
@@ -117,7 +126,8 @@ const routes = [
     name: 'projectTrack',
     component: () => import('@/views/project-track/index'),
     meta: {
-      title: '潜在订单'
+      title: '跟踪周报',
+      keepAlive: true
     }
   },
   {
@@ -133,7 +143,16 @@ const routes = [
     name: 'projectTrackDetails',
     component: () => import('@/views/project-track/details'),
     meta: {
-      title: '每周跟踪详情'
+      title: '每周跟踪详情',
+      keepAlive: true
+    }
+  },
+  {
+    path: '/projectTrack/competitor',
+    name: 'projectTrackCompetitor',
+    component: () => import('@/views/project-track/competitor'),
+    meta: {
+      title: '竞争对手'
     }
   },
   {

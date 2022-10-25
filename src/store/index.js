@@ -6,10 +6,11 @@ import user from './modules/user'
 import customer from './modules/customer'
 import util from './modules/util'
 import visit from './modules/visit'
+import week from './modules/week'
 
 const vuexLocal = new VuexPersistence({
   storage: window.localStorage,
-  modules: ['user', 'customer', 'visit']
+  modules: ['user', 'customer', 'visit', 'util', 'week']
 })
 
 Vue.use(Vuex)
@@ -19,7 +20,8 @@ export default new Vuex.Store({
     user,
     customer,
     util,
-    visit
+    visit,
+    week
   },
   getters,
   plugins: [vuexLocal.plugin]

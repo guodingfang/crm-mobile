@@ -1,5 +1,6 @@
-import { getCustomerList } from '@/api/customer'
+import { getContactsList, getCustomerList } from '@/api/customer'
 import { judgeClockIsEdit } from '@/api/user'
+import { mapActions } from 'vuex'
 
 export default {
   data () {
@@ -13,8 +14,11 @@ export default {
           columns: [],
           selectConfigs: {
             label: 'id',
-            value: 'customerName'
+            value: 'customerName',
+            defaultIndex: 1
           },
+          slotTop: true,
+          slotBottom: true,
           required: true
         },
         {
@@ -26,6 +30,7 @@ export default {
           readonly: true,
           model: {
             type: 'textarea',
+            rows: 2,
             autosize: true
           }
         },
@@ -37,17 +42,34 @@ export default {
           readonly: true
         },
         {
+          id: 'visitType',
+          type: 'select',
+          label: '拜访类型',
+          value: '',
+          columns: [],
+          required: true,
+          selectConfigs: {
+            label: 'dicCode',
+            value: 'dicName'
+          }
+        },
+        {
           id: 'liaisonName',
           type: 'select',
           label: '拜访人员',
           value: '',
           columns: [],
+          showToolbar: false,
           selectConfigs: {
             notSelect: true,
             tips: '请先选择客户',
             label: 'id',
             value: 'name'
           },
+          slotBottom: true,
+          slotBottomName: 'slotUserBottom',
+          slotOption: true,
+          slotOptionName: 'slotOption',
           required: true
         },
         {
@@ -101,6 +123,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('util', ['setVisiType']),
     async getFormInfo (info = {}) {
       /**
        * '0' 可以编辑
@@ -108,10 +131,14 @@ export default {
        * '2' 不可编辑
        * @type {string}
        */
-      if (this.currentVisit.status === '1') {
-        const { code, data } = await judgeClockIsEdit(this.currentVisit.id)
-        if (code === 0) {
-          this.status = data ? '1' : '2'
+      if (this.currentVisit.managerName !== this.userInfo.name) {
+        this.status = '2'
+      } else {
+        if (this.currentVisit.status === '1') {
+          const { code, data } = await judgeClockIsEdit(this.currentVisit.id)
+          if (code === 0) {
+            this.status = data ? '1' : '2'
+          }
         }
       }
       if (this.status === '2') {
@@ -121,12 +148,15 @@ export default {
         switch (item.id) {
           case 'location':
             return { ...item, value: this.currentVisit.location }
+          case 'visitType':
+            return { ...item, value: info.visitTypeName }
           case 'positionTime':
             return { ...item, value: this.currentVisit.positionTime }
           case 'customerName':
           case 'collaborators':
-          case 'liaisonName':
             return { ...item, value: info[item.id], readonly: this.status !== '0' }
+          case 'liaisonName':
+            return { ...item, value: info.liaisonList ? info.liaisonList.map(item => item.name).join(',') : '', readonly: this.status !== '0' }
           case 'purpose':
           case 'result':
           case 'plan':
@@ -138,22 +168,30 @@ export default {
             }
         }
       })
-      await this.getCustomerList(info)
+      await this.getCustomerList({ reset: true }, info)
+      await this.getVisiType()
     },
-    async getCustomerList (info) {
-      const { code, data } = await getCustomerList({
+    async getCustomerList (option = {}, info) {
+      const { reset = false, ...args } = option
+      const { code, data, total } = await getCustomerList({
         status: '1',
-        limit: 10000000
+        page: this.page,
+        limit: this.limit,
+        ...args
       })
       if (code !== 0) return
-      this.customerList = data
-      const selectCustomer = this.customerList.find(item => item.customerName === info.customerName)
+      this.complete = total <= this.page * this.limit
+      this.customerList = reset ? data : [...this.customerList, ...data]
+      const selectCustomer = this.customerList.find(item => item.customerName === this.info.customerName)
       this.formInfo = this.formInfo.map(item => item.id === 'customerName' ? {
         ...item,
         columns: this.customerList
       } : item.id === 'liaisonName' ? {
         ...item,
-        columns: selectCustomer?.liaisonList || [],
+        columns: (selectCustomer?.liaisonList || [])
+          .map(item => info && info.liaisonList
+            ? ({ ...item, select: info.liaisonList.find(i => i.id === item.id) })
+            : ({ ...item, select: false })),
         selectConfigs: { ...item.selectConfigs, notSelect: !selectCustomer }
       } : item)
     },
@@ -163,6 +201,56 @@ export default {
         ...item,
         columns: contactsList,
         selectConfigs: { ...item.selectConfigs, notSelect: false }
+      } : item)
+    },
+    defaultType (info) {
+      if (info && info.customerCode === 'CARBON') {
+        this.formInfo = this.formInfo.map(item => {
+          if (item.id === 'visitType') {
+            const { columns, selectConfigs } = item
+            const colData = columns.find(col => col.dicCode === 'CRM_VISIT_TYPE02')
+            this.info = {
+              ...this.info,
+              visitType: colData[selectConfigs.label],
+              visitTypeName: colData[selectConfigs.value]
+            }
+            return {
+              ...item,
+              value: colData.dicName
+            }
+          } else {
+            return item
+          }
+        })
+      } else {
+        this.formInfo = this.formInfo.map(item => item.id === 'visitType' ? { ...item, value: '' } : item)
+        this.info = {
+          ...this.info,
+          visitType: '',
+          visitTypeName: ''
+        }
+      }
+    },
+    async changeContactsList () {
+      const { code, data } = await getContactsList(this.info.customerId)
+      if (code !== 0) return
+      this.formInfo = this.formInfo.map(item => {
+        if (item.id === 'liaisonName') {
+          const columns = data.map(col => ({ ...col, select: item.columns.find(i => i.id === col.id) ? item.columns.find(i => i.id === col.id).select : false }))
+          return {
+            ...item,
+            columns
+          }
+        } else {
+          return item
+        }
+      })
+    },
+    async getVisiType () {
+      const data = this.customerCharacter || await this.setVisiType()
+      this.formInfo = this.formInfo.map(item => item.id === 'visitType' ? {
+        ...item,
+        columns: data
       } : item)
     }
   }

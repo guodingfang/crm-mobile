@@ -30,7 +30,7 @@
       <p class="explain">说明：打卡前请先确定位置是否准确，位置无误后长按下方的打卡按钮</p>
     </div>
     <div class="address-model">
-      <Date :clock-amount="clockAmount" @clock="onClock" />
+      <Date :clock-amount="clockAmount" :is-location="isLocation" @clock="onClock" />
     </div>
 
   </div>
@@ -62,6 +62,7 @@ export default {
       time: '',
       clockAmount: 1,
       notes: '',
+      isLocation: false,
       address: '定位中...',
       location: '',
       weeks: ['日', '一', '二', '三', '四', '五', '六']
@@ -86,9 +87,10 @@ export default {
       if (code !== 0) return
       this.clockAmount = (data || 0) + 1
     },
-    onAgainLocation () {
+    async onAgainLocation () {
       this.address = '定位中...'
-      this.getLocation()
+      this.isLocation = false
+      await this.getLocation()
     },
     async onClock () {
       const { code } = await addClockRecord({

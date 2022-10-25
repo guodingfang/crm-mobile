@@ -46,7 +46,6 @@ export default {
   },
   methods: {
     onClickItem (item) {
-      console.log('item', item)
       item.amount += 1
     }
   }

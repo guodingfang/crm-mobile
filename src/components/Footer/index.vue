@@ -7,6 +7,7 @@
           :class="btnStyle(btn.status)"
           v-for="btn in btnList"
           :key="btn.type"
+          v-preventReClick
           @click="handleBtn(btn.type)"
         >
           {{ btn.name }}
@@ -25,6 +26,10 @@ export default {
       default: () => {
         return []
       }
+    },
+    isAllowClick: {
+      type: Boolean,
+      default: true
     }
   },
   data () {
@@ -35,6 +40,8 @@ export default {
       return `${type}`
     },
     handleBtn (type) {
+      if (!this.isAllowClick) return
+      this.$emit('update:isAllowClick', false)
       this.$emit(type)
     }
   }

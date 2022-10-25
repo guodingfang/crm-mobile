@@ -26,3 +26,48 @@ export const getRegionInfo = (option) => {
     }
   })
 }
+
+// 获取项目模式
+export const getProjectModel = () => {
+  return axios.get('/dic/getDic', {
+    params: {
+      typeCode: 'XMMS'
+    }
+  })
+}
+
+// 获取售前状态
+export const getPreSaleStatus = () => {
+  return axios.get('/dic/getDic', {
+    params: {
+      typeCode: 'SQZT_GZ'
+    }
+  })
+}
+
+// 获取联系人角色
+export const getContactsRol = () => {
+  return axios.get('/dic/getDic', {
+    params: {
+      typeCode: 'CRM_CONTACTS_ROL'
+    }
+  })
+}
+
+// 获取拜访类型
+export const getVisiType = () => {
+  return axios.get('/dic/getDic', {
+    params: {
+      typeCode: 'CRM_VISIT_TYPE'
+    }
+  })
+}
+
+// 获取产品线
+export const getProductLine = () => {
+  return axios.get('/dic/getDic', {
+    params: {
+      typeCode: 'CRM_PRODUCT_LINE'
+    }
+  })
+}

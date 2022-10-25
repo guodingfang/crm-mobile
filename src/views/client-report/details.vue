@@ -1,16 +1,19 @@
 <template>
-  <div>
+  <div class="page">
     <Loading v-show="pageLoading" />
     <Form ref="baseForm">
       <Title class="title" title="客户基本信息" />
+      <div class="status" v-if="exists">现存</div>
       <div class="content-info">
         <div v-for="item in formInfo" :key="item.id">
           <Item :info="item" @change="onChangeInput" />
         </div>
       </div>
 
+      <ProjectLine :info="productList" :is-allow-click="isAllowAddUser" @select="onSelectLine" />
+
       <Title class="title" title="联系人信息" />
-      <div class="contacts-info">
+      <div class="contacts-info" :class="{'contacts-read-only': false}">
         <SwipeCell class="contacts-item" v-for="item in contactsList" :key="item.tag">
           <ContactsItem :info="item" @change="onChangeContacts" />
           <template #right>
@@ -20,12 +23,12 @@
           </template>
         </SwipeCell>
       </div>
-
-      <AddUserBtn v-if="!readOnly" @btn="addContacts" />
+      <AddUserBtn v-if="isAllowAddUser" @btn="addContacts" />
     </Form>
     <Footer
       v-if="btnList.length"
       :btn-list="btnList"
+      :is-allow-click.sync="isAllowClick"
       @submit="onSubmit"
       @save="onSave"
       @del="onDel"
@@ -39,6 +42,7 @@ import Footer from '@/components/Footer'
 import { Form, Item } from '@/components/Form'
 import { AddUserBtn } from '@/components/Button'
 import { ContactsItem } from '@/components/Contacts'
+import ProjectLine from '@/components/ProductLine'
 import Title from '@/components/Title'
 import form from './mixins/form'
 import {
@@ -46,11 +50,14 @@ import {
   saveCustomer,
   resetCustomer,
   deleteCustomer,
-  getCustomerDetails
+  getCustomerDetails,
+  getDetails,
+  getCustomerBuProductLine
 } from '@/api/customer'
 import { mapGetters, mapActions } from 'vuex'
 import dayjs from 'dayjs'
 import { SwipeCell, Toast, Dialog } from 'vant'
+import moment from 'moment'
 
 export default {
   name: 'ClientDetails',
@@ -63,27 +70,34 @@ export default {
     Title,
     ContactsItem,
     AddUserBtn,
-    SwipeCell
+    SwipeCell,
+    ProjectLine
   },
   data () {
     return {
+      exists: false,
       pageLoading: true,
       btnList: [],
       contactsList: [],
-      readOnly: false
+      productList: [],
+      isAllowAddUser: true,
+      readOnly: false,
+      isAllowClick: true
     }
   },
   computed: {
     ...mapGetters(['userInfo'])
   },
   mounted () {
-    const { customerId } = this.$route.query
-    this.getCustomerInfo(customerId)
+    window.scrollTo(0, 0)
+    this.getCustomerInfo()
   },
   methods: {
     ...mapActions('customer', ['setRestCustomerList']),
 
-    async getCustomerInfo (customerId) {
+    async getCustomerInfo () {
+      const { customerId, cid, exists } = this.$route.query
+      this.exists = exists
       if (customerId) {
         const { code = -1, data = {} } = await getCustomerDetails({
           customerId: customerId
@@ -97,17 +111,26 @@ export default {
           ]
         } else if (this.info.status === 3) {
           this.btnList = [
-            { status: 'btn1', name: '提交', type: 'submit' },
-            { status: 'btn2', name: '保存', type: 'save' }
+            { status: 'btn1', name: '提交', type: 'submit' }
+            // { status: 'btn2', name: '保存', type: 'save' }
           ]
         }
 
         this.contactsList = this.info.liaisonList.map(item => ({ ...item, tag: Math.random() })) || []
         this.readOnly = this.info.status === 0 || this.info.status === 1
+        this.isAllowAddUser = false
+      } else if (cid) {
+        const { code = -1, data = {} } = await getDetails(cid)
+        if (code !== 0) return
+        this.info = { ...data }
+        this.btnList = [
+          { status: 'btn1', name: '提交', type: 'submit' }
+        ]
+        this.readOnly = this.exists
       } else {
         this.btnList = [
-          { status: 'btn1', name: '提交', type: 'submit' },
-          { status: 'btn2', name: '保存', type: 'save' }
+          { status: 'btn1', name: '提交', type: 'submit' }
+          // { status: 'btn2', name: '保存', type: 'save' }
         ]
         this.contactsList = [{
           id: '',
@@ -124,7 +147,24 @@ export default {
         }]
       }
       await this.getFormInfo(this.info)
+      await this.getProductLine()
       this.pageLoading = false
+    },
+
+    async getProductLine () {
+      const { code, data } = await getCustomerBuProductLine(this.info.customerId || this.info.tycId)
+      if (code !== 0) return
+      this.productList = data.map(item => ({ ...item, select: !!item.managerCode }))
+    },
+
+    onSelectLine (type) {
+      this.productList = this.productList.map(item => item.lineType === type ? {
+        ...item,
+        select: !item.select,
+        managerName: !item.select ? this.userInfo.name : '',
+        managerCode: !item.select ? this.userInfo.code : '',
+        orgName: !item.select ? this.userInfo.dept : ''
+      } : item)
     },
 
     onDelContacts (contacts) {
@@ -202,20 +242,42 @@ export default {
         } else {
           Toast(msg)
         }
+        this.isAllowClick = true
       }).catch(() => {
         Toast('请填写完整')
+        this.isAllowClick = true
       })
     },
     async onSubmit () {
       this.$refs.baseForm.$refs.useForm.validate().then(async () => {
+        if (!this.contactsList.length) {
+          Toast('最少添加一个联系人')
+          this.isAllowClick = true
+          return
+        }
+        const lineType = this.productList.filter(item => item.managerCode === this.userInfo.code && item.select).map(item => ({
+          lineType: item.lineType,
+          lineTypeName: item.lineTypeName
+        }))
+        if (!lineType.length) {
+          Toast('请选择产品线')
+          this.isAllowClick = true
+          return
+        }
         const params = {
           ...this.info,
+          estiblishTime: this.info.estiblishTime ? moment(this.info.estiblishTime).format('YYYY-MM-DD') : '',
           creater: this.userInfo.name,
-          liaisonList: this.contactsList.map(item => {
+          areaName: this.info.areaName || this.info.district,
+          areaCode: this.info.areaCode || this.info.regionCode,
+          address: this.info.address || this.info.rladdress || this.info.taxAddress || this.info.regLocation,
+          lineType,
+          liaisonList: this.contactsList.map((item, index) => {
             const { tag, ...args } = item
-            return { ...args }
+            return { ...args, mainContact: index === 0 ? 0 : 1 }
           })
         }
+        // console.log('params', params)
         if (this.info.status === 2) {
           const { code, msg = '' } = await resetCustomer({
             ...params
@@ -239,8 +301,10 @@ export default {
             Toast(msg)
           }
         }
+        this.isAllowClick = true
       }).catch(() => {
         Toast('请填写完整')
+        this.isAllowClick = true
       })
     },
     onBack () {
@@ -257,9 +321,11 @@ export default {
           Toast('删除成功')
           this.setRestCustomerList(true)
           this.onBack()
+          this.isAllowClick = true
         }
       }).catch(() => {
         console.log('取消删除')
+        this.isAllowClick = true
       })
     }
   }
@@ -267,9 +333,35 @@ export default {
 </script>
 
 <style scoped lang="less">
+.page {
+  position: relative;
+  .status {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: #ffffff;
+    background-color: rgb(129, 211, 248);
+    font-size: .12rem;
+    padding: .03rem .06rem;
+    margin: .04rem .12rem;
+    border-radius: .04rem;
+  }
+}
 .content-info,
 .contacts-info {
   margin: 0 .12rem;
+  &.contacts-read-only {
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9;
+    }
+  }
   .contacts-item {
     margin-bottom: .12rem;
     .cardRadios();
@@ -296,6 +388,7 @@ export default {
 .title {
   padding-left: .12rem;
 }
+
 .footer {
   display: flex;
   align-items: center;

@@ -1,92 +1,80 @@
 <template>
-  <div>
-    <div class="search-container">
-      <Search
-        class="search"
-        shape="round"
-        placeholder=" 搜索项目编号或名称"
-        @input="onInputChange"
-      />
-    </div>
-
-    <PullRefresh
-      v-if="projectList.length"
-      v-model="reloadLoading"
-      @refresh="onReload"
+  <div class="tab-container">
+    <Tabs
+      v-if="isRoles"
+      v-model="active"
+      :swipeable="false"
+      title-active-color="#02A7F0"
     >
-      <Title class="title" :title="`当前共计X条跟进中的项目`" :is-prefix="false"/>
-      <List
-        class="list-container"
-        :finished="finished"
-        finished-text="没有更多了"
-      >
-        <div class="list">
-          <Item @skip="onSkipProject" />
-        </div>
-      </List>
-
-    </PullRefresh>
-
-    <Empty v-else />
+      <Tab :title="`全部订单(${totalCount})`">
+        <Content v-if="active === 0" content-type="total" />
+      </Tab>
+      <Tab :title="`我的订单(${ownerCount})`">
+        <Content v-if="active === 1" content-type="owner" />
+      </Tab>
+      <Tab :title="`下属订单(${subCount})`">
+        <Content v-if="active === 2" content-type="sub" />
+      </Tab>
+    </Tabs>
+    <Content v-else type="total" />
   </div>
 </template>
 
 <script>
-import { Search, List, PullRefresh, Empty } from 'vant'
-import Title from '@/components/Title'
-import Item from './components/ProjectItem'
+import { Tabs, Tab } from 'vant'
+import Content from './components/Content'
+import { mapGetters } from 'vuex'
+import { getProjectCount } from '@/api/week'
 export default {
   name: 'ProjectTrack',
   components: {
-    Search,
-    Title,
-    List,
-    PullRefresh,
-    Empty,
-    Item
+    Tabs,
+    Tab,
+    Content
   },
   data () {
     return {
-      reloadLoading: false,
-      loading: false,
-      finished: false,
-      projectList: [1]
+      active: 0,
+      ownerCount: 0,
+      subCount: 0,
+      totalCount: 0
+    }
+  },
+  mounted () {
+    this.getCount()
+  },
+  computed: {
+    ...mapGetters(['userInfo', 'headerHeight']),
+    isRoles () {
+      const { roles = [] } = this.userInfo
+      return roles.includes('CRM大区经理') || roles.includes('CRM管理员') || roles.includes('CRM营销总监')
     }
   },
   methods: {
-    onReload () {
-      setTimeout(() => {
-        this.reloadLoading = false
-      }, 1000)
-    },
-    onInputChange (e) {
-      console.log('e', e)
-    },
-    onSkipProject (e) {
-      this.$router.push({ name: 'projectTrackList' })
+    async getCount () {
+      const { code, data } = await getProjectCount()
+      if (code !== 0) return
+      this.ownerCount = data.own
+      this.subCount = data.other
+      this.totalCount = data.all
     }
   }
 }
 </script>
 
 <style scoped lang="less">
-.search-container {
-  height: 54px;
-  .search {
-    width: 100%;
-    position: fixed;
-    z-index: 999;
-    .boxShadow()
+.tab-container {
+  /deep/ .van-tabs {
+    .van-tabs__nav {
+      position: fixed;
+      width: 100%;
+      height: 0.44rem;
+      z-index: 999;
+    }
+    .van-tabs__line {
+      background-color: #02A7F0;
+    }
   }
 }
-.title {
-  margin: 0 .12rem;
-}
-.list-container {
-  min-height: calc(100vh - 1rem);
-  .list {
-    margin: 0 .12rem;
-    .cardRadios()
-  }
-}
+
 </style>

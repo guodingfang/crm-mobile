@@ -41,6 +41,7 @@
     </div>
     <Footer
       :btn-list="btnList"
+      :is-allow-click.sync="isAllowClick"
       @add="onAdd"
       @back="onBack"
     />
@@ -79,7 +80,8 @@ export default {
       limit: 10,
       customerTotal: 0,
       customerName: '',
-      allowLoad: true
+      allowLoad: true,
+      isAllowClick: true
     }
   },
   computed: {
@@ -146,6 +148,7 @@ export default {
     },
     onAdd () {
       this.$router.push({ name: 'clientVisit' })
+      this.isAllowClick = true
     },
     onBack () {
       this.$router.go(-1)

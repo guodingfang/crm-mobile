@@ -16,6 +16,7 @@
     </Form>
     <Footer
       :btn-list="btnList"
+      :is-allow-click.sync="isAllowClick"
       @confirm="onConfirm"
     />
   </div>
@@ -46,6 +47,7 @@ export default {
       info: null,
       btnText: '',
       isMain: false,
+      isAllowClick: true,
       formInfo: [
         {
           id: 'name',
@@ -59,12 +61,32 @@ export default {
           type: 'input',
           label: '联系电话',
           value: '',
-          required: true,
+          required: false,
           rules: [{
-            pattern: /^1[3456789]\d{9}$/,
+            required: false,
+            validator: this.asyncValidator,
             message: '请填写正确手机号',
             trigger: 'onBlur'
           }]
+        },
+        {
+          id: 'otherContacts',
+          type: 'input',
+          label: '其他联系方式',
+          value: '',
+          required: false
+        },
+        {
+          id: 'roleName',
+          type: 'select',
+          label: '角色',
+          required: true,
+          value: '',
+          columns: [],
+          selectConfigs: {
+            label: 'dicCode',
+            value: 'dicName'
+          }
         },
         {
           id: 'orgName',
@@ -79,6 +101,22 @@ export default {
           label: '联系人职务',
           value: '',
           required: true
+        },
+        {
+          id: 'notes',
+          type: 'input',
+          flex: 'column',
+          label: '备注',
+          placeholder: '请输入',
+          value: '',
+          required: false,
+          model: {
+            type: 'textarea',
+            maxlength: 300,
+            'show-word-limit': true,
+            rows: 2,
+            autosize: true
+          }
         }
       ]
     }
@@ -102,11 +140,29 @@ export default {
     }
   },
   mounted () {
+    window.scrollTo(0, 0)
     const { type = '' } = this.$route.query
     this.type = type
+    this.getContactsRol()
   },
   methods: {
     ...mapActions('customer', ['setContactsInfo']),
+    ...mapActions('util', ['setContactsRol']),
+    async asyncValidator (val) {
+      if (val) {
+        return /^1[3456789]\d{9}$/.test(val)
+      }
+      return true
+    },
+    async getContactsRol () {
+      const roleNameColumns = await this.setContactsRol()
+      const role = roleNameColumns.find(item => item.dicCode === this.info.roleName)
+      this.formInfo = this.formInfo.map(item => item.id === 'roleName' ? {
+        ...item,
+        value: role ? role.dicName : '',
+        columns: roleNameColumns
+      } : item)
+    },
     toggleMain () {
       if (this.isMain) return
       this.info = {
@@ -116,10 +172,22 @@ export default {
       this.isMain = true
       this.btnText = '已是主要联系人'
     },
-    onChangeInput ({ id, value }) {
-      this.info = {
-        ...this.info,
-        [`${id}`]: value
+    onChangeInput ({ type, id, value, configs }) {
+      if (type === 'select') {
+        this.info = {
+          ...this.info,
+          [`${id}`]: value[configs.label]
+        }
+        if (id === 'roleName') {
+          this.formInfo = this.formInfo.map(item => item.id === 'roleName'
+            ? { ...item, value: value[configs.value] }
+            : item)
+        }
+      } else {
+        this.info = {
+          ...this.info,
+          [`${id}`]: value
+        }
       }
     },
     async onConfirm () {
@@ -150,8 +218,10 @@ export default {
         } else {
           Toast(msg)
         }
+        this.isAllowClick = true
       }).catch(() => {
         Toast('请填写完整')
+        this.isAllowClick = true
       })
     },
     onBack () {

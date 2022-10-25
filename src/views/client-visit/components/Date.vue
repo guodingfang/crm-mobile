@@ -25,6 +25,10 @@ export default {
     clockAmount: {
       type: Number,
       default: 0
+    },
+    isLocation: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -40,7 +44,7 @@ export default {
         mode: 'normal',
         size: 120,
         color: '#FFA847',
-        animation: 'default 2500 0'
+        animation: 'default 500 0'
       }
     }
   },
@@ -65,6 +69,10 @@ export default {
       }, 1000)
     },
     onTouchstart () {
+      if (!this.isLocation) {
+        Toast('定位中不可打卡')
+        return
+      }
       if (!this.allowClick) {
         Toast('15s内不可重复打卡')
         return
@@ -79,7 +87,7 @@ export default {
         this.emptyColor = '#999999'
         this.allowClick = false
         this.$emit('clock')
-      }, 2500)
+      }, 500)
     },
     onTouchend () {
       clearInterval(this.timerClick)

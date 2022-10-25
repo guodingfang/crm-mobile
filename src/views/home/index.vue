@@ -33,7 +33,7 @@ import ModelItem from '@/views/home/components/ModelItem'
 import Filtrate from '@/views/home/components/Filtrate'
 import BriefReport from '@/views/home/components/BriefReport'
 import DemoModel from '@/views/home/components/DemoModel'
-import { getUserBaseInfo, getUserInfo } from '@/api/user'
+import { getRoles, getUserAvatar, getUserBaseInfo, getUserInfo } from '@/api/user'
 import { mapActions } from 'vuex'
 import { queryVisitNum } from '@/api/visit'
 import { Toast } from 'vant'
@@ -53,8 +53,8 @@ export default {
       weekVisitAmount: 0,
       monthVisitAmount: 0,
       modelList: [
-        { name: '客户信息', model: 'myClient', backgroundColor: '#ffca78' },
         { name: '客户报备', model: 'clientReport', backgroundColor: '#39aff9' },
+        { name: '客户信息', model: 'myClient', backgroundColor: '#ffca78' },
         { name: '客户拜访', model: 'clientVisit', backgroundColor: '#7d72f9' },
         { name: '跟踪周报', model: 'projectTrack', backgroundColor: '#ff7173' }
         // { name: '敬请期待', model: 'expect' }
@@ -63,6 +63,8 @@ export default {
   },
   async mounted () {
     await this.getUserBaseInfo()
+  },
+  async activated () {
     await this.getVisitAmount()
   },
   methods: {
@@ -77,16 +79,30 @@ export default {
       }
     },
     async getUserInfo ({ userCode = '' }) {
-      const {
-        code,
-        data
-      } = await getUserInfo({
-        code: userCode || '34548'
-      })
+      const params = { code: userCode || '32129' }
+      const { code, data } = await getUserInfo(params)
       if (code !== 0) return
-      console.log('data', data)
-      this.userInfo = data
-      this.setUserInfo(this.userInfo)
+      if (process.env.NODE_ENV !== 'development') {
+        try {
+          await getUserAvatar({
+            path: data.avatar
+          })
+          this.userInfo = {
+            ...data,
+            avatar: `${window.crmPrefix}/Services/avater?path=${data.avatar}`
+          }
+        } catch (err) {
+          this.userInfo = data
+        }
+      } else {
+        this.userInfo = data
+      }
+
+      const rolesRes = await getRoles(params)
+      this.setUserInfo({
+        ...this.userInfo,
+        roles: rolesRes.data.map(item => item.roleName)
+      })
     },
     onSkipModel (model) {
       if (model !== 'expect') {
